@@ -1,0 +1,12 @@
+{
+  "tasks": ["line-duel", "grid-treasure", "resource-defense"],
+  "seeds": [0, 1],
+  "intervals": 4,
+  "B_tau_ms": 24.0,
+  "guard_margin_ms": 2.0,
+  "delta_min_ms": 1.0,
+  "delta_max_ms": 4.0,
+  "horizon": 18,
+  "eval_rollouts_K": 2,
+  "threshold_T": 0.50
+}

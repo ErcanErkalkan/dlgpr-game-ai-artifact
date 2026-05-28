@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "DLGPR: Compute-Budgeted GA-PSO-RL Scheduler for Real-Time Game AI"
+message: "If you use this revision package, please cite the associated manuscript or repository."
+type: software
+authors:
+  - family-names: Erkalkan
+    given-names: Ercan
+year: 2026
+version: 0.2.0
+license: MIT

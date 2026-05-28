@@ -1,0 +1,25 @@
+{
+  "title": "DLGPR Game AI Artifact: Compute-Budgeted GA-PSO-RL Scheduler for Real-Time Game AI",
+  "upload_type": "software",
+  "description": "Reproducibility artifact for the DLGPR Game AI validation package. The archive contains source code, experiment runners, metadata-complete validation logs, statistical tables, figures, tests, and documentation for a compute-budgeted GA-PSO-RL scheduler. The manuscript source and manuscript PDF are intentionally excluded from this artifact.",
+  "creators": [
+    {
+      "name": "Erkalkan, Ercan",
+      "affiliation": "Marmara University"
+    }
+  ],
+  "license": "MIT",
+  "version": "0.3.0",
+  "publication_date": "2026-05-28",
+  "keywords": [
+    "Game AI",
+    "real-time optimization",
+    "genetic algorithm",
+    "particle swarm optimization",
+    "reinforcement learning",
+    "budgeted scheduling",
+    "reproducibility artifact"
+  ],
+  "access_right": "open"
+}
+
