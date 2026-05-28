@@ -1,0 +1,11 @@
+metric,direction,definition
+return,higher is better,Mean episode return under the disclosed evaluation seed schedule.
+score,higher is better,Task score; in the self-contained harness it is equal to episode return.
+win_rate,higher is better,Fraction of evaluation episodes ending in a task win.
+steps_to_T,lower is better,"First interval where mean score reaches threshold T, converted by the environment-step cap; -1/blank means not reached."
+p95_latency_ms,lower is better,95th percentile of per-interval end-to-end charged time.
+p99_latency_ms,lower is better,99th percentile of per-interval end-to-end charged time.
+loop_overrun_rate,lower is better,Fraction of intervals where charged loop time exceeds the disclosed loop budget.
+e2e_overrun_rate,lower is better,Fraction of intervals where charged loop time plus guard margin exceeds the gross interval budget.
+handshake_events,diagnostic,Number of executed cross-layer injection/distillation operations.
+actual_cpu_e2e_ms,diagnostic,Measured Python wall-clock runtime for the local harness interval; separate from charged-time accounting.

@@ -26,6 +26,8 @@ python scripts/run_full_validation.py --quick
 python scripts/analyze_results.py
 ```
 
+In the release repository, the manuscript-consistent full validation logs are stored outside this package directory at `../experiments/tog2026_full_validation/logs/full_validation`, with generated tables at `../experiments/tog2026_full_validation/paper/revised/tables`.
+
 Generated outputs:
 
 - `logs/full_validation/interval_logs.csv`
@@ -42,6 +44,12 @@ python scripts/analyze_results.py
 ```
 
 The full run uses more seeds and planning intervals. It is still a compact local validation harness, not a substitute for GVGAI/MicroRTS/Procgen experiments. To use external benchmarks, implement an environment factory with the same API as `dlgpr.envs`.
+
+To audit the manuscript-consistent release artifacts from this directory:
+
+```bash
+python scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
+```
 
 ## Core design
 

@@ -10,7 +10,7 @@
   ],
   "license": "MIT",
   "version": "0.3.0",
-  "publication_date": "2026-05-28",
+  "publication_date": "2026-05-29",
   "keywords": [
     "Game AI",
     "real-time optimization",
@@ -22,4 +22,3 @@
   ],
   "access_right": "open"
 }
-

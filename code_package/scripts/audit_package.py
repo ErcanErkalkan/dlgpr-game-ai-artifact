@@ -49,9 +49,16 @@ REQUIRED_METHODS = {
 }
 
 
-def audit(log_dir: Path | None = None) -> tuple[bool, str]:
+def display_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(ROOT.parent.resolve())).replace("\\", "/")
+    except ValueError:
+        return str(path)
+
+
+def audit(log_dir: Path | None = None, table_dir: Path | None = None) -> tuple[bool, str]:
     log_dir = log_dir or (ROOT / "logs/full_validation")
-    table_dir = ROOT / "paper/revised/tables"
+    table_dir = table_dir or (ROOT / "paper/revised/tables")
     lines: list[str] = ["# Package Audit Report", ""]
     ok = True
     for rel in REQUIRED_FILES:
@@ -60,10 +67,10 @@ def audit(log_dir: Path | None = None) -> tuple[bool, str]:
         ok = ok and exists
     lines.append("")
 
-    lines.append(f"Log directory: {log_dir}")
+    lines.append(f"Log directory: {display_path(log_dir)}")
     for rel in ["interval_logs.csv", "atomic_step_logs.csv", "environment_metadata.json"]:
         exists = (log_dir / rel).exists()
-        lines.append(f"- [{'OK' if exists else 'MISSING'}] {log_dir / rel}")
+        lines.append(f"- [{'OK' if exists else 'MISSING'}] {display_path(log_dir / rel)}")
         ok = ok and exists
     lines.append("")
 
@@ -127,11 +134,11 @@ def audit(log_dir: Path | None = None) -> tuple[bool, str]:
         "table_strict_vs_relaxed.csv": ["loop_overrun_rate_down", "e2e_overrun_rate_down", "p95_latency_ms_down", "p99_latency_ms_down", "max_overrun_ms_down", "unused_budget_ms_context"],
         "table_statistical_tests.csv": ["DLGPR_mean", "DLGPR_std", "DLGPR_median", "DLGPR_ci95", "comparator_mean", "comparator_std", "comparator_median", "comparator_ci95", "p_value", "effect_size_cliffs_delta"],
     }
-    lines.append(f"Table directory: {table_dir}")
+    lines.append(f"Table directory: {display_path(table_dir)}")
     for filename, cols in table_checks.items():
         path = table_dir / filename
         exists = path.exists()
-        lines.append(f"- [{'OK' if exists else 'MISSING'}] {path}")
+        lines.append(f"- [{'OK' if exists else 'MISSING'}] {display_path(path)}")
         ok = ok and exists
         if exists:
             table = pd.read_csv(path, nrows=1)
@@ -146,9 +153,11 @@ def audit(log_dir: Path | None = None) -> tuple[bool, str]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--log-dir", default="logs/full_validation")
+    parser.add_argument("--table-dir", default="paper/revised/tables")
     args = parser.parse_args()
     log_dir = ROOT / args.log_dir
-    ok, report = audit(log_dir)
+    table_dir = ROOT / args.table_dir
+    ok, report = audit(log_dir, table_dir)
     out = ROOT / "PACKAGE_AUDIT_REPORT.md"
     out.write_text(report, encoding="utf-8")
     print(report)

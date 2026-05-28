@@ -11,7 +11,7 @@ build/
 *.egg-info/
 .env
 .env.*
-Paper/
+/Paper/
 *.aux
 *.bbl
 *.blg
@@ -19,4 +19,5 @@ Paper/
 *.out
 *.spl
 *.synctex.gz
-
+code_package/logs/
+code_package/paper/

@@ -13,10 +13,10 @@
 - [OK] Dockerfile
 - [OK] Makefile
 
-Log directory: C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\..\experiments\tog2026_full_validation\logs\full_validation
-- [OK] C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\..\experiments\tog2026_full_validation\logs\full_validation\interval_logs.csv
-- [OK] C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\..\experiments\tog2026_full_validation\logs\full_validation\atomic_step_logs.csv
-- [OK] C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\..\experiments\tog2026_full_validation\logs\full_validation\environment_metadata.json
+Log directory: experiments/tog2026_full_validation/logs/full_validation
+- [OK] experiments/tog2026_full_validation/logs/full_validation/interval_logs.csv
+- [OK] experiments/tog2026_full_validation/logs/full_validation/atomic_step_logs.csv
+- [OK] experiments/tog2026_full_validation/logs/full_validation/environment_metadata.json
 
 ## Interval log rows: 16800
 Missing interval columns: none
@@ -33,12 +33,12 @@ Metadata missing for line-duel: none
 Metadata missing for grid-treasure: none
 Metadata missing for resource-defense: none
 
-Table directory: C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\paper\revised\tables
-- [OK] C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\paper\revised\tables\table_main_results.csv
+Table directory: experiments/tog2026_full_validation/paper/revised/tables
+- [OK] experiments/tog2026_full_validation/paper/revised/tables/table_main_results.csv
   Missing table columns: none
-- [OK] C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\paper\revised\tables\table_strict_vs_relaxed.csv
+- [OK] experiments/tog2026_full_validation/paper/revised/tables/table_strict_vs_relaxed.csv
   Missing table columns: none
-- [OK] C:\Users\Ercan\Desktop\Game_AI\release\dlgpr-game-ai-artifact\code_package\paper\revised\tables\table_statistical_tests.csv
+- [OK] experiments/tog2026_full_validation/paper/revised/tables/table_statistical_tests.csv
   Missing table columns: none
 
 Overall status: PASS
