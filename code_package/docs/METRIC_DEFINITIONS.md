@@ -14,8 +14,11 @@
 | Learning progress | Diagnostic | Nonnegative short-horizon progress proxy for the RL module and distillation updates. |
 | Improvement rate | Diagnostic | Short-horizon improvement divided by charged atomic-step time. |
 | Handshake events | Diagnostic | Count of cross-layer injection/distillation events. |
-| Actual CPU E2E ms | Diagnostic | Local Python wall-clock runtime for an interval, logged separately from charged-time accounting. |
+| Actual CPU loop wall ms | Lower is better for deployment diagnostics | Measured wall-clock duration of the budget-critical atomic-step loop, excluding offline evaluation/logging. |
+| Actual CPU E2E ms | Lower is better for deployment diagnostics | Measured budget-critical atomic loop plus the disclosed guard margin, logged separately from simulated charged-time accounting. |
+| Wall-clock interval ms | Diagnostic | Script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric. |
+| Holm-adjusted p-value | Lower is stronger evidence | Holm-Bonferroni adjusted paired-test p-value across the reported comparator family. |
 
 ## Timing-mode caution
 
-The default `simulated_charged` timing mode is intended to stress the scheduler deterministically. It is not a claim of real engine wall-clock performance. For a journal submission, external benchmark runs should disclose whether timing is simulated charged-time, actual CPU time, or engine-integrated wall-clock time.
+The default `simulated_charged` timing mode is intended to stress the scheduler deterministically. It is not a claim of real engine wall-clock performance. The separate `actual_cpu_raw` timing profile charges measured CPU time without clipping and uses a disclosed 100 ms interval budget. Manuscript text must keep charged-time validation and raw-CPU timing diagnostics separate.

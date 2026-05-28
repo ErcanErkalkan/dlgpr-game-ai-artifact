@@ -8,6 +8,8 @@ The manuscript source and manuscript PDF are intentionally excluded. The public 
 
 - `code_package/`: implementation, tests, analysis scripts, package documentation, Dockerfile, and runnable experiment code.
 - `experiments/tog2026_full_validation/`: the full local validation used by the manuscript, including 16,800 interval-log rows, 131,718 atomic-step rows, task metadata, generated tables, and generated figures.
+- `experiments/tog2026_external_gymnasium/`: a matched-budget external benchmark extension on Gymnasium tasks, including 6,720 interval-log rows and 52,687 atomic-step rows.
+- `experiments/tog2026_timing_profile/`: raw-CPU timing diagnostics for strict and relaxed do-not-start rules, including 1,500 interval-log rows and 16,158 atomic-step rows.
 
 Generated directories named `paper/revised` contain artifact tables, figures, and manuscript-insert snippets. They are not the manuscript source and do not contain the excluded `Paper/` submission directory.
 
@@ -18,11 +20,13 @@ From `code_package/`:
 ```bash
 python -m tests.run_tests
 python scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
+python scripts/audit_package.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables
+python scripts/audit_package.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables
 ```
 
 Expected status:
 
-- 10 tests pass.
+- 13 tests pass.
 - Package audit reports `Overall status: PASS`.
 - Strict `delta_max` timing has zero loop overruns in the full validation logs.
 
@@ -36,10 +40,11 @@ The manuscript reports the full local validation in `experiments/tog2026_full_va
 - 5 evaluation rollouts per interval.
 - Strict `delta_max` loop and end-to-end overrun rate of 0.0 on all three tasks.
 - Relaxed `delta_min` overrun rates of 0.5825 to 0.6275, matching the manuscript's 58.25--62.75% range.
+- A separate Gymnasium extension reports named external benchmarks only; it is not presented as GVGAI/MicroRTS/Procgen evidence.
+- A separate raw-CPU timing profile uses a calibrated 100 ms interval budget and reports zero strict-rule actual CPU overruns across the profiled tasks.
 
 The consistency audit is summarized in `RELEASE_CONSISTENCY.md`.
 
 ## License and Citation
 
 The software is released under the MIT License. Citation metadata is provided in `CITATION.cff` and `.zenodo.json`.
-

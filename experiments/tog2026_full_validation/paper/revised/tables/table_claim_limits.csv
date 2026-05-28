@@ -1,5 +1,5 @@
 item,status,manuscript_use
 Self-contained environments,included,Use for reproducibility and sanity-check evidence; do not claim GVGAI/MicroRTS/Procgen generalization.
 Charged-time accounting,included,Can support budget-accounting diagnostics when timing_mode is disclosed.
-Actual external benchmark evidence,not included,Must be added before strong journal claims.
+Actual external benchmark evidence,not included,Use only for the named external benchmarks that were actually logged; do not generalize to GVGAI/MicroRTS/Procgen unless those logs exist.
 Cross-layer handoff,implemented,Compare DLGPR-full with no-handshake ablation.

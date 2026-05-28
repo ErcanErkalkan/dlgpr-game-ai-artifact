@@ -1,0 +1,9 @@
+task_name,method,do_not_start_rule,loop_overrun_rate_down,e2e_overrun_rate_down,p95_latency_ms_down,p99_latency_ms_down,max_overrun_ms_down,unused_budget_ms_context,actual_cpu_e2e_p99_ms_down,actual_cpu_e2e_overrun_rate_down,return_mean_up
+gym-blackjack,relaxed-delta-min,relaxed_delta_min,0.6,0.6,26.066488881848176,26.384346861406648,2.480256552951684,0.20471981405103,,,0.0
+gym-blackjack,strict-delta-max,strict_delta_max,0.0,0.0,23.117589754232373,23.81925782650246,0.0,2.5139927236011483,,,-0.12
+gym-cliffwalking,relaxed-delta-min,relaxed_delta_min,0.5416666666666666,0.5416666666666666,26.240948265079002,26.696977506406,2.945553697029098,0.19857474106342496,,,-80.0
+gym-cliffwalking,strict-delta-max,strict_delta_max,0.0,0.0,23.067243347388136,23.852317662562765,0.0,2.5504306973085744,,,-80.0
+gym-frozenlake-4x4,relaxed-delta-min,relaxed_delta_min,0.5583333333333333,0.5583333333333333,26.17215564808787,26.36892634798867,2.5124371256196625,0.21982495154788495,,,0.44000000000000006
+gym-frozenlake-4x4,strict-delta-max,strict_delta_max,0.0,0.0,23.062088736981657,23.583424533146125,0.0,2.558534046691314,,,0.38
+gym-frozenlake-4x4-deterministic,relaxed-delta-min,relaxed_delta_min,0.5916666666666667,0.5916666666666667,25.87605769055636,26.710674511516675,2.8084550200546268,0.20571761418228574,,,0.0
+gym-frozenlake-4x4-deterministic,strict-delta-max,strict_delta_max,0.0,0.0,23.376037660455488,23.67784565990207,0.0,2.4972655604912766,,,0.1

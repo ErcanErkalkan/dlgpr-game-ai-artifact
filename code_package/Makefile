@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: test quick analyze manuscript sensitivity audit bundle all clean
+.PHONY: test quick analyze manuscript external external-analyze timing timing-analyze sensitivity audit audit-release bundle all clean
 
 test:
 	$(PYTHON) -m tests.run_tests
@@ -14,12 +14,29 @@ analyze:
 synthetic-manuscript:
 	$(PYTHON) scripts/make_manuscript_assets.py
 
+external:
+	$(PYTHON) scripts/run_external_validation.py --full
+
+external-analyze:
+	$(PYTHON) scripts/analyze_results.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables --fig-dir ../experiments/tog2026_external_gymnasium/paper/revised/figures
+
+timing:
+	$(PYTHON) scripts/run_timing_profile.py --full
+
+timing-analyze:
+	$(PYTHON) scripts/analyze_results.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables --fig-dir ../experiments/tog2026_timing_profile/paper/revised/figures
+
 sensitivity:
 	$(PYTHON) scripts/run_sensitivity.py
 	$(PYTHON) scripts/analyze_sensitivity.py
 
 audit:
 	$(PYTHON) scripts/audit_package.py
+
+audit-release:
+	$(PYTHON) scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
+	$(PYTHON) scripts/audit_package.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables
+	$(PYTHON) scripts/audit_package.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables
 
 bundle:
 	$(PYTHON) scripts/make_submission_bundle.py

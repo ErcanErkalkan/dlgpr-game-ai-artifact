@@ -385,4 +385,105 @@ def make_env(task: str, seed: int = 0) -> BaseGameEnv:
         return GridTreasureEnv(seed=seed)
     if task == "resource-defense":
         return ResourceDefenseEnv(seed=seed)
+    if task == "gym-frozenlake-4x4":
+        import gymnasium as gym
+        from .external_adapters import GymnasiumDiscreteAdapter
+        metadata = EnvMetadata(
+            environment_name="Gymnasium/FrozenLake-v1",
+            environment_version="1.3.0",
+            benchmark_family="gymnasium-toy-text",
+            task_name="FrozenLake-v1-4x4-slippery",
+            observation_definition="Discrete grid state encoded as a 16-dimensional one-hot vector.",
+            observation_preprocessing="Gymnasium discrete observation converted to one-hot vector; no additional feature engineering.",
+            action_definition="Discrete, 4 actions: left, down, right, up.",
+            action_space_type="discrete",
+            action_space_size=4,
+            reward_definition="+1.0 for reaching the goal, 0 otherwise; slippery transition dynamics enabled.",
+            episode_termination="Goal reached, hole reached, or Gymnasium time-limit truncation.",
+            opponent_policy="No opponent; environment transition model is stochastic because the slippery map changes intended motion.",
+            stochasticity_sources="Gymnasium reset seed and slippery transition dynamics.",
+            max_steps=100,
+        )
+        return GymnasiumDiscreteAdapter(lambda s: gym.make("FrozenLake-v1", is_slippery=True), metadata, seed)
+    if task == "gym-frozenlake-4x4-deterministic":
+        import gymnasium as gym
+        from .external_adapters import GymnasiumDiscreteAdapter
+        metadata = EnvMetadata(
+            environment_name="Gymnasium/FrozenLake-v1",
+            environment_version="1.3.0",
+            benchmark_family="gymnasium-toy-text",
+            task_name="FrozenLake-v1-4x4-deterministic",
+            observation_definition="Discrete grid state encoded as a 16-dimensional one-hot vector.",
+            observation_preprocessing="Gymnasium discrete observation converted to one-hot vector; no additional feature engineering.",
+            action_definition="Discrete, 4 actions: left, down, right, up.",
+            action_space_type="discrete",
+            action_space_size=4,
+            reward_definition="+1.0 for reaching the goal, 0 otherwise; deterministic transition dynamics.",
+            episode_termination="Goal reached, hole reached, or Gymnasium time-limit truncation.",
+            opponent_policy="No opponent; deterministic grid transition dynamics.",
+            stochasticity_sources="Gymnasium reset seed controls initial RNG state; transition dynamics are deterministic.",
+            max_steps=100,
+        )
+        return GymnasiumDiscreteAdapter(lambda s: gym.make("FrozenLake-v1", is_slippery=False), metadata, seed)
+    if task == "gym-cliffwalking":
+        import gymnasium as gym
+        from .external_adapters import GymnasiumDiscreteAdapter
+        metadata = EnvMetadata(
+            environment_name="Gymnasium/CliffWalking-v1",
+            environment_version="1.3.0",
+            benchmark_family="gymnasium-toy-text",
+            task_name="CliffWalking-v1",
+            observation_definition="Discrete grid state encoded as a 48-dimensional one-hot vector.",
+            observation_preprocessing="Gymnasium discrete observation converted to one-hot vector; no additional feature engineering.",
+            action_definition="Discrete, 4 actions: up, right, down, left.",
+            action_space_type="discrete",
+            action_space_size=4,
+            reward_definition="-1 per step and -100 for stepping into the cliff; episode ends at the goal.",
+            episode_termination="Goal reached or Gymnasium time-limit truncation.",
+            opponent_policy="No opponent; deterministic grid transition dynamics.",
+            stochasticity_sources="Gymnasium reset seed; transition dynamics are deterministic.",
+            max_steps=200,
+        )
+        return GymnasiumDiscreteAdapter(lambda s: gym.make("CliffWalking-v1"), metadata, seed)
+    if task == "gym-blackjack":
+        import gymnasium as gym
+        from .external_adapters import GymnasiumDiscreteAdapter
+        metadata = EnvMetadata(
+            environment_name="Gymnasium/Blackjack-v1",
+            environment_version="1.3.0",
+            benchmark_family="gymnasium-toy-text-card",
+            task_name="Blackjack-v1",
+            observation_definition="Tuple observation [player_sum, dealer_showing_card, usable_ace] represented as a normalized numeric vector.",
+            observation_preprocessing="Tuple fields flattened to a three-dimensional numeric vector and normalized by the largest absolute field value.",
+            action_definition="Discrete, 2 actions: stick or hit.",
+            action_space_type="discrete",
+            action_space_size=2,
+            reward_definition="+1 for win, 0 for draw, -1 for loss under the Gymnasium Blackjack rules.",
+            episode_termination="Player sticks or goes bust; dealer then resolves the hand according to the built-in policy.",
+            opponent_policy="Built-in dealer policy: draw until reaching 17, then stick.",
+            stochasticity_sources="Gymnasium reset seed controls card draws and initial hands.",
+            max_steps=100,
+        )
+        return GymnasiumDiscreteAdapter(lambda s: gym.make("Blackjack-v1", natural=False, sab=False), metadata, seed)
+    if task == "minigrid-empty-5x5":
+        import gymnasium as gym
+        import minigrid  # noqa: F401 - importing registers MiniGrid environments
+        from .external_adapters import GymnasiumDiscreteAdapter
+        metadata = EnvMetadata(
+            environment_name="MiniGrid/MiniGrid-Empty-5x5-v0",
+            environment_version="3.1.0",
+            benchmark_family="minigrid",
+            task_name="MiniGrid-Empty-5x5-v0",
+            observation_definition="Partial-observation MiniGrid dictionary with 7x7x3 symbolic image and agent direction.",
+            observation_preprocessing="Image and direction fields flattened and normalized; mission string omitted from the numeric policy input.",
+            action_definition="Discrete, 7 MiniGrid actions: left, right, forward, pickup, drop, toggle, done.",
+            action_space_type="discrete",
+            action_space_size=7,
+            reward_definition="MiniGrid sparse goal reward with built-in time penalty; zero for non-goal transitions.",
+            episode_termination="Goal reached or MiniGrid time-limit truncation.",
+            opponent_policy="No opponent; partial observability and randomized start/goal placement define task variation.",
+            stochasticity_sources="MiniGrid reset seed controls layout/start orientation and any environment randomization.",
+            max_steps=100,
+        )
+        return GymnasiumDiscreteAdapter(lambda s: gym.make("MiniGrid-Empty-5x5-v0"), metadata, seed)
     raise ValueError(f"Unknown task: {task}")

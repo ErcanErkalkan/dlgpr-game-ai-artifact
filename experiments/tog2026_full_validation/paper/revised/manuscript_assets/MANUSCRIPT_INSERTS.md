@@ -24,10 +24,11 @@ The local experiments are self-contained validation tasks designed to verify sch
 - **delta_min_ms:** 1.0
 - **delta_max_ms:** 4.0
 - **guard_margin_ms:** 2.0
+- **scheduler_ema_lambda:** 0.75
 - **timing_mode:** simulated_charged
 - **operating_system:** Windows-11-10.0.26200-SP0
 - **runtime:** Python 3.14.3
-- **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1'}
+- **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1', 'gymnasium': '1.3.0', 'minigrid': '3.1.0'}
 
 ### grid-treasure
 - **environment_name:** GridTreasureEnv
@@ -45,10 +46,11 @@ The local experiments are self-contained validation tasks designed to verify sch
 - **delta_min_ms:** 1.0
 - **delta_max_ms:** 4.0
 - **guard_margin_ms:** 2.0
+- **scheduler_ema_lambda:** 0.75
 - **timing_mode:** simulated_charged
 - **operating_system:** Windows-11-10.0.26200-SP0
 - **runtime:** Python 3.14.3
-- **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1'}
+- **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1', 'gymnasium': '1.3.0', 'minigrid': '3.1.0'}
 
 ### resource-defense
 - **environment_name:** ResourceDefenseEnv
@@ -66,10 +68,11 @@ The local experiments are self-contained validation tasks designed to verify sch
 - **delta_min_ms:** 1.0
 - **delta_max_ms:** 4.0
 - **guard_margin_ms:** 2.0
+- **scheduler_ema_lambda:** 0.75
 - **timing_mode:** simulated_charged
 - **operating_system:** Windows-11-10.0.26200-SP0
 - **runtime:** Python 3.14.3
-- **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1'}
+- **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1', 'gymnasium': '1.3.0', 'minigrid': '3.1.0'}
 
 
 ## Manuscript-ready Results Narrative

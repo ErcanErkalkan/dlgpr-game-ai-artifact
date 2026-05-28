@@ -7,10 +7,10 @@ This directory stores the full matched-budget local validation run used by the r
 Run from `code_package/`:
 
 ```bash
-python scripts/run_full_validation.py --full --output ..\experiments\tog2026_full_validation\logs\full_validation
-python scripts/analyze_results.py --log-dir ..\experiments\tog2026_full_validation\logs\full_validation --table-dir ..\experiments\tog2026_full_validation\paper\revised\tables --fig-dir ..\experiments\tog2026_full_validation\paper\revised\figures
-python scripts/make_manuscript_assets.py --log-dir ..\experiments\tog2026_full_validation\logs\full_validation --table-dir ..\experiments\tog2026_full_validation\paper\revised\tables --fig-dir ..\experiments\tog2026_full_validation\paper\revised\figures --out-dir ..\experiments\tog2026_full_validation\paper\revised\manuscript_assets
-python scripts/audit_package.py --log-dir ..\experiments\tog2026_full_validation\logs\full_validation
+python scripts/run_full_validation.py --full --output ../experiments/tog2026_full_validation/logs/full_validation
+python scripts/analyze_results.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables --fig-dir ../experiments/tog2026_full_validation/paper/revised/figures
+python scripts/make_manuscript_assets.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables --fig-dir ../experiments/tog2026_full_validation/paper/revised/figures --out-dir ../experiments/tog2026_full_validation/paper/revised/manuscript_assets
+python scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
 ```
 
 ## Run summary
@@ -22,6 +22,7 @@ python scripts/audit_package.py --log-dir ..\experiments\tog2026_full_validation
 - Seeds: 10
 - Planning intervals per run: 40
 - Step 4 coverage audit: `STEP4_EXPERIMENT_AUDIT.md`
+- Package audit: `../../code_package/PACKAGE_AUDIT_REPORT.md`
 
 ## Claim boundary
 

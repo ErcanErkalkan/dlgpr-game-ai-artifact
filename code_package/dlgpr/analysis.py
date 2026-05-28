@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .metrics import mean_std_ci, paired_sign_test_p_value, paired_wilcoxon_p_value, cliffs_delta
+from .metrics import mean_std_ci, paired_sign_test_p_value, paired_wilcoxon_p_value, cliffs_delta, holm_bonferroni
 
 
 def _last_per_run(df: pd.DataFrame) -> pd.DataFrame:
@@ -23,6 +23,8 @@ def summarize_main(df: pd.DataFrame) -> pd.DataFrame:
         score_mean, score_std, score_ci = mean_std_ci(g["score"])
         st = np.where(g["steps_to_threshold"] < 0, np.nan, g["steps_to_threshold"])
         steps_to_t = float(np.nanmean(st)) if np.isfinite(st).any() else np.nan
+        subset = df[(df.task_name == task) & (df.method == method)]
+        is_raw_timing = bool("timing_mode" in subset and subset["timing_mode"].eq("actual_cpu_raw").all())
         rows.append({
             "task_name": task,
             "method": method,
@@ -36,11 +38,15 @@ def summarize_main(df: pd.DataFrame) -> pd.DataFrame:
             "score_ci95": score_ci,
             "win_rate_up": float(np.mean(g["win"])),
             "steps_to_T_down": steps_to_t,
-            "p95_latency_ms_down": float(np.percentile(df[(df.task_name == task) & (df.method == method)]["e2e_time_ms"], 95)),
-            "p99_latency_ms_down": float(np.percentile(df[(df.task_name == task) & (df.method == method)]["e2e_time_ms"], 99)),
-            "max_latency_ms_down": float(np.max(df[(df.task_name == task) & (df.method == method)]["e2e_time_ms"])),
-            "loop_overrun_rate_down": float(np.mean(df[(df.task_name == task) & (df.method == method)]["loop_overrun"].astype(bool))),
-            "e2e_overrun_rate_down": float(np.mean(df[(df.task_name == task) & (df.method == method)]["e2e_overrun"].astype(bool))),
+            "p95_latency_ms_down": float(np.percentile(subset["e2e_time_ms"], 95)),
+            "p99_latency_ms_down": float(np.percentile(subset["e2e_time_ms"], 99)),
+            "max_latency_ms_down": float(np.max(subset["e2e_time_ms"])),
+            "loop_overrun_rate_down": float(np.mean(subset["loop_overrun"].astype(bool))),
+            "e2e_overrun_rate_down": float(np.mean(subset["e2e_overrun"].astype(bool))),
+            "actual_cpu_e2e_p95_ms_down": float(np.percentile(subset["actual_cpu_e2e_ms"], 95)) if is_raw_timing and "actual_cpu_e2e_ms" in subset else np.nan,
+            "actual_cpu_e2e_p99_ms_down": float(np.percentile(subset["actual_cpu_e2e_ms"], 99)) if is_raw_timing and "actual_cpu_e2e_ms" in subset else np.nan,
+            "actual_cpu_e2e_max_ms_down": float(np.max(subset["actual_cpu_e2e_ms"])) if is_raw_timing and "actual_cpu_e2e_ms" in subset else np.nan,
+            "actual_cpu_e2e_overrun_rate_down": float(np.mean(subset["actual_cpu_e2e_overrun"].astype(bool))) if is_raw_timing and "actual_cpu_e2e_overrun" in subset else np.nan,
         })
     return pd.DataFrame(rows)
 
@@ -49,6 +55,7 @@ def summarize_strict_relaxed(df: pd.DataFrame) -> pd.DataFrame:
     subset = df[df["method"].isin(["strict-delta-max", "relaxed-delta-min"])]
     rows = []
     for (task, method, rule), g in subset.groupby(["task_name", "method", "do_not_start_rule"]):
+        is_raw_timing = bool("timing_mode" in g and g["timing_mode"].eq("actual_cpu_raw").all())
         rows.append({
             "task_name": task,
             "method": method,
@@ -59,6 +66,8 @@ def summarize_strict_relaxed(df: pd.DataFrame) -> pd.DataFrame:
             "p99_latency_ms_down": float(np.percentile(g["e2e_time_ms"], 99)),
             "max_overrun_ms_down": float(max(g["loop_overrun_ms"].max(), g["e2e_overrun_ms"].max())),
             "unused_budget_ms_context": float(np.mean(np.maximum(0.0, g["allowed_ms"] - g["loop_time_ms"]))),
+            "actual_cpu_e2e_p99_ms_down": float(np.percentile(g["actual_cpu_e2e_ms"], 99)) if is_raw_timing and "actual_cpu_e2e_ms" in g else np.nan,
+            "actual_cpu_e2e_overrun_rate_down": float(np.mean(g["actual_cpu_e2e_overrun"].astype(bool))) if is_raw_timing and "actual_cpu_e2e_overrun" in g else np.nan,
             "return_mean_up": float(g.groupby("seed")["return"].last().mean()),
         })
     return pd.DataFrame(rows)
@@ -134,8 +143,40 @@ def statistical_tests(df: pd.DataFrame) -> pd.DataFrame:
                 "loop_overrun_rate_down": float(np.mean(comp_lat["loop_overrun"].astype(bool))),
                 "e2e_overrun_rate_down": float(np.mean(comp_lat["e2e_overrun"].astype(bool))),
                 "n_pairs": len(merged),
-                "conclusion": "exploratory local harness; confirm on external benchmarks before manuscript claims",
+                "conclusion": "interpret with Holm-adjusted p-values and effect sizes; do not use raw p-values alone",
             })
+    out = pd.DataFrame(rows)
+    if not out.empty:
+        out["p_value_holm"] = holm_bonferroni(out["p_value"])
+        out["significant_holm_0_05"] = out["p_value_holm"] < 0.05
+    return out
+
+
+def summarize_timing_profile(df: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    group_cols = ["benchmark", "task_name", "method", "timing_mode", "do_not_start_rule"]
+    for keys, g in df.groupby(group_cols):
+        benchmark, task, method, timing_mode, rule = keys
+        rows.append({
+            "benchmark": benchmark,
+            "task_name": task,
+            "method": method,
+            "timing_mode": timing_mode,
+            "do_not_start_rule": rule,
+            "charged_e2e_p95_ms_down": float(np.percentile(g["e2e_time_ms"], 95)),
+            "charged_e2e_p99_ms_down": float(np.percentile(g["e2e_time_ms"], 99)),
+            "charged_e2e_max_ms_down": float(g["e2e_time_ms"].max()),
+            "charged_loop_overrun_rate_down": float(np.mean(g["loop_overrun"].astype(bool))),
+            "charged_e2e_overrun_rate_down": float(np.mean(g["e2e_overrun"].astype(bool))),
+            "actual_cpu_loop_p95_ms_down": float(np.percentile(g["actual_cpu_loop_wall_ms"], 95)) if "actual_cpu_loop_wall_ms" in g else np.nan,
+            "actual_cpu_e2e_p95_ms_down": float(np.percentile(g["actual_cpu_e2e_ms"], 95)) if "actual_cpu_e2e_ms" in g else np.nan,
+            "actual_cpu_e2e_p99_ms_down": float(np.percentile(g["actual_cpu_e2e_ms"], 99)) if "actual_cpu_e2e_ms" in g else np.nan,
+            "actual_cpu_e2e_max_ms_down": float(g["actual_cpu_e2e_ms"].max()) if "actual_cpu_e2e_ms" in g else np.nan,
+            "actual_cpu_loop_overrun_rate_down": float(np.mean(g["actual_cpu_loop_overrun"].astype(bool))) if "actual_cpu_loop_overrun" in g else np.nan,
+            "actual_cpu_e2e_overrun_rate_down": float(np.mean(g["actual_cpu_e2e_overrun"].astype(bool))) if "actual_cpu_e2e_overrun" in g else np.nan,
+            "mean_unused_charged_loop_budget_ms_context": float(np.mean(np.maximum(0.0, g["allowed_ms"] - g["loop_time_ms"]))),
+            "intervals": int(len(g)),
+        })
     return pd.DataFrame(rows)
 
 
@@ -211,15 +252,21 @@ def metric_definitions() -> pd.DataFrame:
         {"metric": "loop_overrun_rate", "direction": "lower is better", "definition": "Fraction of intervals where charged loop time exceeds the disclosed loop budget."},
         {"metric": "e2e_overrun_rate", "direction": "lower is better", "definition": "Fraction of intervals where charged loop time plus guard margin exceeds the gross interval budget."},
         {"metric": "handshake_events", "direction": "diagnostic", "definition": "Number of executed cross-layer injection/distillation operations."},
-        {"metric": "actual_cpu_e2e_ms", "direction": "diagnostic", "definition": "Measured Python wall-clock runtime for the local harness interval; separate from charged-time accounting."},
+        {"metric": "actual_cpu_loop_wall_ms", "direction": "diagnostic; lower is better for deployment", "definition": "Measured wall-clock duration of the budget-critical atomic-step loop, excluding offline evaluation/logging."},
+        {"metric": "actual_cpu_e2e_ms", "direction": "diagnostic; lower is better for deployment", "definition": "Measured budget-critical atomic loop plus the disclosed guard margin; separate from simulated charged-time accounting."},
+        {"metric": "wall_clock_interval_ms", "direction": "diagnostic", "definition": "Measured script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric."},
+        {"metric": "p_value_holm", "direction": "lower is stronger evidence", "definition": "Holm-Bonferroni adjusted paired-test p-value across the reported comparator family."},
     ])
 
 
-def package_claim_limits() -> pd.DataFrame:
+def package_claim_limits(df: pd.DataFrame | None = None) -> pd.DataFrame:
+    has_external = False
+    if df is not None and "benchmark" in df.columns:
+        has_external = bool(df["benchmark"].astype(str).str.contains("gymnasium|external|procgen|microrts|gvgai|open_spiel", case=False, regex=True).any())
     return pd.DataFrame([
         {"item": "Self-contained environments", "status": "included", "manuscript_use": "Use for reproducibility and sanity-check evidence; do not claim GVGAI/MicroRTS/Procgen generalization."},
         {"item": "Charged-time accounting", "status": "included", "manuscript_use": "Can support budget-accounting diagnostics when timing_mode is disclosed."},
-        {"item": "Actual external benchmark evidence", "status": "not included", "manuscript_use": "Must be added before strong journal claims."},
+        {"item": "Actual external benchmark evidence", "status": "included" if has_external else "not included", "manuscript_use": "Use only for the named external benchmarks that were actually logged; do not generalize to GVGAI/MicroRTS/Procgen unless those logs exist."},
         {"item": "Cross-layer handoff", "status": "implemented", "manuscript_use": "Compare DLGPR-full with no-handshake ablation."},
     ])
 
@@ -306,11 +353,14 @@ def analyze(log_dir: Path, table_dir: Path, fig_dir: Path) -> Dict[str, Path]:
     metrics = metric_definitions()
     metrics.to_csv(table_dir / "table_metric_definitions.csv", index=False)
     outputs["metric_definitions"] = table_dir / "table_metric_definitions.csv"
-    limits = package_claim_limits()
+    limits = package_claim_limits(df)
     limits.to_csv(table_dir / "table_claim_limits.csv", index=False)
     outputs["claim_limits"] = table_dir / "table_claim_limits.csv"
     stats = statistical_tests(df)
     stats.to_csv(table_dir / "table_statistical_tests.csv", index=False)
     outputs["stats"] = table_dir / "table_statistical_tests.csv"
+    timing = summarize_timing_profile(df)
+    timing.to_csv(table_dir / "table_timing_profile.csv", index=False)
+    outputs["timing_profile"] = table_dir / "table_timing_profile.csv"
     make_figures(df, fig_dir)
     return outputs

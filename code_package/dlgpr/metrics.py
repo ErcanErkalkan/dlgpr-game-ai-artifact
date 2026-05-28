@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from math import comb
-from typing import Iterable, Tuple
+from typing import Iterable, List, Tuple
 import numpy as np
 
 
@@ -75,3 +75,20 @@ def paired_wilcoxon_p_value(x: Iterable[float], y: Iterable[float]) -> Tuple[flo
         return p, "paired Wilcoxon signed-rank"
     except Exception:
         return paired_sign_test_p_value(a, b), "paired exact sign test fallback"
+
+
+def holm_bonferroni(p_values: Iterable[float]) -> List[float]:
+    """Return Holm-Bonferroni adjusted p-values in the input order."""
+    arr = np.asarray(list(p_values), dtype=np.float64)
+    adjusted = np.full(arr.shape, np.nan, dtype=np.float64)
+    finite_idx = np.where(np.isfinite(arr))[0]
+    m = finite_idx.size
+    if m == 0:
+        return adjusted.tolist()
+    ordered = finite_idx[np.argsort(arr[finite_idx])]
+    prev = 0.0
+    for rank, idx in enumerate(ordered):
+        raw = float((m - rank) * arr[idx])
+        prev = max(prev, raw)
+        adjusted[idx] = min(1.0, prev)
+    return adjusted.tolist()

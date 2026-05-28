@@ -8,6 +8,7 @@ For journal-strength evidence, connect at least two or three external benchmarks
 - MicroRTS maps/opponents,
 - Procgen-style generalization tasks,
 - Gymnasium-compatible discrete-action tasks as preliminary adapters.
+- MiniGrid tasks through the Gymnasium adapter when dictionary observations can be flattened.
 
 ## Required adapter contract
 
@@ -26,8 +27,21 @@ The `EnvMetadata` object must define the environment name/version, observation a
 
 ## Provided code
 
-`dlgpr.external_adapters.GymnasiumDiscreteAdapter` provides a minimal wrapper for vector-observation, discrete-action Gymnasium-style environments. It is optional and not required for the self-contained tests.
+`dlgpr.external_adapters.GymnasiumDiscreteAdapter` provides a wrapper for discrete-action Gymnasium-style environments. It supports discrete observations, vector observations, and numeric dictionary observations such as MiniGrid image/direction dictionaries.
+
+The release includes completed logs for these default external tasks:
+
+- `gym-frozenlake-4x4`
+- `gym-frozenlake-4x4-deterministic`
+- `gym-cliffwalking`
+- `gym-blackjack`
+
+The release also includes an optional MiniGrid adapter:
+
+- `minigrid-empty-5x5`
+
+MiniGrid is included in the raw-CPU timing profile, but not in the default external performance run. The simple linear policy is not a strong MiniGrid controller, so MiniGrid results must be treated as adapter and timing diagnostics unless a stronger policy class is added.
 
 ## Manuscript rule
 
-Do not claim cross-benchmark Game AI generalization using only the self-contained environments. Use them as reproducibility and implementation evidence only.
+Do not claim cross-benchmark Game AI generalization using only the self-contained environments. The Gymnasium extension supports only the named tasks that were logged. It still does not justify claims about GVGAI, MicroRTS, Procgen, or OpenSpiel unless those benchmarks are connected and logged with the same metadata fields.

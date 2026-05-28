@@ -28,7 +28,8 @@ REQUIRED_FILES = [
 REQUIRED_INTERVAL_COLUMNS = [
     "run_id", "seed", "method", "benchmark", "environment_name", "environment_version",
     "task_name", "interval", "B_tau_ms", "allowed_ms", "delta_min_ms", "delta_max_ms",
-    "do_not_start_rule", "scheduler_ema_lambda", "loop_time_ms", "e2e_time_ms", "actual_cpu_e2e_ms",
+    "do_not_start_rule", "scheduler_ema_lambda", "loop_time_ms", "e2e_time_ms", "actual_cpu_loop_wall_ms",
+    "actual_cpu_e2e_ms", "wall_clock_interval_ms", "total_atomic_cpu_ms", "actual_cpu_loop_overrun", "actual_cpu_e2e_overrun",
     "timing_mode", "selected_module", "atomic_step_duration_ms",
     "score", "return", "win", "threshold_T", "steps_to_threshold",
     "p95_latency_ms", "p99_latency_ms", "max_latency_ms", "loop_overrun", "e2e_overrun",
@@ -47,6 +48,8 @@ REQUIRED_METHODS = {
     "greedy-improvement", "no-diversity", "no-learning-progress", "no-ucb",
     "no-non-starvation", "no-handshake", "strict-delta-max", "relaxed-delta-min",
 }
+
+TIMING_METHODS = {"DLGPR-full", "strict-delta-max", "relaxed-delta-min"}
 
 
 def display_path(path: Path) -> str:
@@ -82,13 +85,17 @@ def audit(log_dir: Path | None = None, table_dir: Path | None = None) -> tuple[b
         lines.append(f"Missing interval columns: {missing_cols if missing_cols else 'none'}")
         ok = ok and not missing_cols
         methods = set(df["method"].unique()) if "method" in df.columns else set()
-        missing_methods = sorted(REQUIRED_METHODS - methods)
+        is_timing_profile = "timing_mode" in df.columns and set(df["timing_mode"].dropna().unique()) == {"actual_cpu_raw"} and methods.issubset(TIMING_METHODS)
+        expected_methods = TIMING_METHODS if is_timing_profile else REQUIRED_METHODS
+        missing_methods = sorted(expected_methods - methods)
         lines.append(f"Missing methods: {missing_methods if missing_methods else 'none'}")
         ok = ok and not missing_methods
         if "method" in df.columns and "handshake_events" in df.columns:
             hs = df.groupby("method")["handshake_events"].sum().to_dict()
             lines.append(f"Handshake events by method: {hs}")
-            ok = ok and hs.get("DLGPR-full", 0) > 0 and hs.get("no-handshake", 1) == 0
+            ok = ok and hs.get("DLGPR-full", 0) > 0
+            if "no-handshake" in methods:
+                ok = ok and hs.get("no-handshake", 1) == 0
         strict = df[df.get("method", "") == "strict-delta-max"]
         if not strict.empty and "loop_overrun" in strict.columns:
             strict_overruns = int(strict["loop_overrun"].astype(bool).sum())
@@ -132,7 +139,8 @@ def audit(log_dir: Path | None = None, table_dir: Path | None = None) -> tuple[b
     table_checks = {
         "table_main_results.csv": ["return_mean_up", "return_std", "return_median_up", "return_ci95", "p95_latency_ms_down", "p99_latency_ms_down", "max_latency_ms_down", "loop_overrun_rate_down", "e2e_overrun_rate_down"],
         "table_strict_vs_relaxed.csv": ["loop_overrun_rate_down", "e2e_overrun_rate_down", "p95_latency_ms_down", "p99_latency_ms_down", "max_overrun_ms_down", "unused_budget_ms_context"],
-        "table_statistical_tests.csv": ["DLGPR_mean", "DLGPR_std", "DLGPR_median", "DLGPR_ci95", "comparator_mean", "comparator_std", "comparator_median", "comparator_ci95", "p_value", "effect_size_cliffs_delta"],
+        "table_statistical_tests.csv": ["DLGPR_mean", "DLGPR_std", "DLGPR_median", "DLGPR_ci95", "comparator_mean", "comparator_std", "comparator_median", "comparator_ci95", "p_value", "p_value_holm", "effect_size_cliffs_delta"],
+        "table_timing_profile.csv": ["charged_e2e_p99_ms_down", "actual_cpu_e2e_p99_ms_down", "actual_cpu_e2e_overrun_rate_down"],
     }
     lines.append(f"Table directory: {display_path(table_dir)}")
     for filename, cols in table_checks.items():
@@ -154,11 +162,12 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--log-dir", default="logs/full_validation")
     parser.add_argument("--table-dir", default="paper/revised/tables")
+    parser.add_argument("--out", default="PACKAGE_AUDIT_REPORT.md")
     args = parser.parse_args()
     log_dir = ROOT / args.log_dir
     table_dir = ROOT / args.table_dir
     ok, report = audit(log_dir, table_dir)
-    out = ROOT / "PACKAGE_AUDIT_REPORT.md"
+    out = ROOT / args.out
     out.write_text(report, encoding="utf-8")
     print(report)
     raise SystemExit(0 if ok else 1)

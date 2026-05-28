@@ -149,7 +149,9 @@
         "numpy": "2.4.3",
         "pandas": "3.0.1",
         "matplotlib": "3.10.8",
-        "scipy": "1.17.1"
+        "scipy": "1.17.1",
+        "gymnasium": "1.3.0",
+        "minigrid": "3.1.0"
       },
       "B_tau_ms": 24.0,
       "allowed_ms": 22.0,
@@ -160,7 +162,7 @@
       "evaluation_cadence": 1,
       "timing_mode": "simulated_charged",
       "scheduler_ema_lambda": 0.75,
-      "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds.",
+      "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
       "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge."
     },
     "grid-treasure": {
@@ -279,7 +281,9 @@
         "numpy": "2.4.3",
         "pandas": "3.0.1",
         "matplotlib": "3.10.8",
-        "scipy": "1.17.1"
+        "scipy": "1.17.1",
+        "gymnasium": "1.3.0",
+        "minigrid": "3.1.0"
       },
       "B_tau_ms": 24.0,
       "allowed_ms": 22.0,
@@ -290,7 +294,7 @@
       "evaluation_cadence": 1,
       "timing_mode": "simulated_charged",
       "scheduler_ema_lambda": 0.75,
-      "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds.",
+      "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
       "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge."
     },
     "resource-defense": {
@@ -409,7 +413,9 @@
         "numpy": "2.4.3",
         "pandas": "3.0.1",
         "matplotlib": "3.10.8",
-        "scipy": "1.17.1"
+        "scipy": "1.17.1",
+        "gymnasium": "1.3.0",
+        "minigrid": "3.1.0"
       },
       "B_tau_ms": 24.0,
       "allowed_ms": 22.0,
@@ -420,7 +426,7 @@
       "evaluation_cadence": 1,
       "timing_mode": "simulated_charged",
       "scheduler_ema_lambda": 0.75,
-      "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds.",
+      "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
       "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge."
     }
   }

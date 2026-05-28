@@ -16,7 +16,7 @@ The reviewer decision highlighted several critical issues:
 - unclear metric definitions,
 - weak reproducibility artifacts.
 
-This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs.
+This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.4.0 also includes a named Gymnasium benchmark extension and a raw-CPU timing profile so the release is not limited to self-contained tasks.
 
 ## Quick start
 
@@ -27,6 +27,11 @@ python scripts/analyze_results.py
 ```
 
 In the release repository, the manuscript-consistent full validation logs are stored outside this package directory at `../experiments/tog2026_full_validation/logs/full_validation`, with generated tables at `../experiments/tog2026_full_validation/paper/revised/tables`.
+
+External and raw-CPU timing artifacts are stored at:
+
+- `../experiments/tog2026_external_gymnasium/logs/external_validation`
+- `../experiments/tog2026_timing_profile/logs/timing_profile`
 
 Generated outputs:
 
@@ -44,6 +49,17 @@ python scripts/analyze_results.py
 ```
 
 The full run uses more seeds and planning intervals. It is still a compact local validation harness, not a substitute for GVGAI/MicroRTS/Procgen experiments. To use external benchmarks, implement an environment factory with the same API as `dlgpr.envs`.
+
+## External benchmark and timing runs
+
+```bash
+python scripts/run_external_validation.py --full
+python scripts/analyze_results.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables --fig-dir ../experiments/tog2026_external_gymnasium/paper/revised/figures
+python scripts/run_timing_profile.py --full
+python scripts/analyze_results.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables --fig-dir ../experiments/tog2026_timing_profile/paper/revised/figures
+```
+
+The external run covers Gymnasium FrozenLake, deterministic FrozenLake, CliffWalking, and Blackjack. The optional MiniGrid adapter is available via `--include-minigrid`; it is included in the raw-CPU timing profile but not in the default external performance run because the simple linear policy is not a strong MiniGrid controller.
 
 To audit the manuscript-consistent release artifacts from this directory:
 
@@ -82,6 +98,14 @@ Use generated results only after checking:
 3. metrics are defined in the metadata file,
 4. strict and relaxed timing are reported separately,
 5. performance claims are supported by statistical summaries.
+
+## What was added in version 0.4.0
+
+- Added Gymnasium external benchmark tasks: FrozenLake slippery, FrozenLake deterministic, CliffWalking, and Blackjack.
+- Added a MiniGrid Empty-5x5 adapter for compatibility and raw-CPU timing diagnostics.
+- Added `actual_cpu_raw` timing mode and raw-CPU timing-profile script.
+- Added Holm-Bonferroni adjusted p-values to the statistical table.
+- Added `table_timing_profile.csv` and clearer separation between charged-time validation and measured CPU profiling.
 
 ## What was added in version 0.3.0
 

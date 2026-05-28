@@ -40,5 +40,7 @@ Table directory: experiments/tog2026_full_validation/paper/revised/tables
   Missing table columns: none
 - [OK] experiments/tog2026_full_validation/paper/revised/tables/table_statistical_tests.csv
   Missing table columns: none
+- [OK] experiments/tog2026_full_validation/paper/revised/tables/table_timing_profile.csv
+  Missing table columns: none
 
 Overall status: PASS

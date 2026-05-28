@@ -9,7 +9,7 @@
     }
   ],
   "license": "MIT",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publication_date": "2026-05-29",
   "keywords": [
     "Game AI",
@@ -18,7 +18,10 @@
     "particle swarm optimization",
     "reinforcement learning",
     "budgeted scheduling",
-    "reproducibility artifact"
+    "reproducibility artifact",
+    "Gymnasium",
+    "MiniGrid",
+    "raw CPU timing"
   ],
   "access_right": "open"
 }

@@ -18,8 +18,22 @@ class TestBudget(unittest.TestCase):
             cfg = ExperimentConfig(tasks=["line-duel"], seeds=[0], intervals=2)
             run_suite(cfg, ["DLGPR-full"], Path(td))
             df = pd.read_csv(Path(td) / "interval_logs.csv")
-            for col in ["environment_name", "score", "return", "p99_latency_ms", "do_not_start_rule"]:
+            for col in [
+                "environment_name", "score", "return", "p99_latency_ms", "do_not_start_rule",
+                "actual_cpu_loop_wall_ms", "actual_cpu_e2e_ms", "wall_clock_interval_ms",
+                "actual_cpu_loop_overrun", "actual_cpu_e2e_overrun",
+            ]:
                 self.assertIn(col, df.columns)
+
+    def test_actual_cpu_raw_timing_mode_is_logged(self):
+        with tempfile.TemporaryDirectory() as td:
+            cfg = ExperimentConfig(tasks=["line-duel"], seeds=[0], intervals=2, timing_mode="actual_cpu_raw")
+            run_suite(cfg, ["strict-delta-max"], Path(td))
+            df = pd.read_csv(Path(td) / "interval_logs.csv")
+            atomic = pd.read_csv(Path(td) / "atomic_step_logs.csv")
+            self.assertEqual(set(df["timing_mode"]), {"actual_cpu_raw"})
+            self.assertTrue((atomic["charged_ms"] >= 0).all())
+            self.assertTrue((atomic["cpu_ms"] >= 0).all())
 
 
 if __name__ == "__main__":

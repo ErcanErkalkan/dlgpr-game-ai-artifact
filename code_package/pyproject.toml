@@ -1,9 +1,9 @@
 [project]
 name = "dlgpr-tog2026"
-version = "0.3.0"
+version = "0.4.0"
 description = "Compute-budgeted GA-PSO-RL scheduler for real-time game AI revision experiments"
 requires-python = ">=3.9"
-dependencies = ["numpy", "pandas", "matplotlib", "scipy"]
+dependencies = ["numpy", "pandas", "matplotlib", "scipy", "gymnasium", "minigrid"]
 
 [tool.setuptools]
 packages = ["dlgpr"]
