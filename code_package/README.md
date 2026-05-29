@@ -1,7 +1,7 @@
 # DLGPR: Compute-Budgeted GA-PSO-RL Scheduler for Real-Time Game AI
 
 This repository is a from-scratch, reproducible code package for manuscript ToG-2026-0045 revision work.
-It implements a matched-budget experimental framework for a Dynamic Layered GA-PSO-RL (DLGPR) scheduler under per-interval compute budgets.
+It implements a matched-budget experimental framework for a Dynamic Layered GA-PSO-RL (DLGPR) scheduler under per-interval compute budgets. The current release adds robust DLGPR variants that score atomic candidates on the disclosed evaluation-rollout set rather than on a smaller two-seed proxy.
 
 The package is intentionally self-contained: it includes lightweight game-like environments, GA/PSO/RL modules, strict and relaxed budget enforcement, scheduler baselines, ablations, metadata templates, interval logs, result tables, figures, and tests.
 
@@ -16,7 +16,7 @@ The reviewer decision highlighted several critical issues:
 - unclear metric definitions,
 - weak reproducibility artifacts.
 
-This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.4.0 also includes a named Gymnasium benchmark extension and a raw-CPU timing profile so the release is not limited to self-contained tasks.
+This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.5.0 adds robust candidate acceptance (`robust-DLGPR`) and a near-elite transfer-gated robustness ablation (`robust-near-elite-DLGPR`).
 
 ## Quick start
 
@@ -26,7 +26,7 @@ python scripts/run_full_validation.py --quick
 python scripts/analyze_results.py
 ```
 
-In the release repository, the manuscript-consistent full validation logs are stored outside this package directory at `../experiments/tog2026_full_validation/logs/full_validation`, with generated tables at `../experiments/tog2026_full_validation/paper/revised/tables`.
+In the release repository, the manuscript-consistent full validation logs are stored at `logs/full_validation`, with generated tables at `paper/revised/tables`.
 
 External and raw-CPU timing artifacts are stored at:
 
@@ -64,7 +64,7 @@ The external run covers Gymnasium FrozenLake, deterministic FrozenLake, CliffWal
 To audit the manuscript-consistent release artifacts from this directory:
 
 ```bash
-python scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
+python scripts/audit_package.py --log-dir logs/full_validation --table-dir paper/revised/tables
 ```
 
 ## Core design
@@ -74,6 +74,8 @@ Atomic steps are charged using a measured/simulated duration and logged. The str
 
 Implemented methods:
 
+- robust-DLGPR
+- robust-near-elite-DLGPR
 - DLGPR full
 - GA-only
 - PSO-only
@@ -88,6 +90,15 @@ Implemented methods:
 - no-handshake ablation
 - strict do-not-start variant
 - relaxed do-not-start variant
+
+The robust variants use `atomic_eval_rollouts = K` for candidate scoring. The standard DLGPR and baseline methods keep the lighter two-rollout atomic proxy, so tables must disclose `atomic_eval_rollouts` whenever robust and non-robust methods are compared.
+
+## What was added in version 0.5.0
+
+- Added `robust-DLGPR`, which evaluates atomic GA/PSO/RL candidates on the disclosed rollout count `K` before scheduler updates.
+- Added `robust-near-elite-DLGPR`, a sensitivity variant that combines robust candidate scoring with near-elite transfer gating.
+- Added `atomic_eval_rollouts` to interval logs and metric definitions.
+- Added `table_aggregate_vs_dlgpr.csv` for paired aggregate diagnostics across tasks and seeds.
 
 ## Citation of generated evidence in a manuscript
 

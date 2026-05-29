@@ -31,7 +31,7 @@ REQUIRED_INTERVAL_COLUMNS = [
     "do_not_start_rule", "scheduler_ema_lambda", "loop_time_ms", "e2e_time_ms", "actual_cpu_loop_wall_ms",
     "actual_cpu_e2e_ms", "wall_clock_interval_ms", "total_atomic_cpu_ms", "actual_cpu_loop_overrun", "actual_cpu_e2e_overrun",
     "timing_mode", "selected_module", "atomic_step_duration_ms",
-    "score", "return", "win", "threshold_T", "steps_to_threshold",
+    "score", "return", "win", "threshold_T", "steps_to_threshold", "atomic_eval_rollouts",
     "p95_latency_ms", "p99_latency_ms", "max_latency_ms", "loop_overrun", "e2e_overrun",
     "diversity_value", "learning_progress_value", "improvement_rate_value",
     "handshake_enabled", "handshake_events", "rng_train_seed", "rng_eval_seed", "hardware_id",
@@ -45,6 +45,7 @@ REQUIRED_ATOMIC_COLUMNS = [
 
 REQUIRED_METHODS = {
     "DLGPR-full", "GA-only", "PSO-only", "RL-only", "fixed-split", "round-robin",
+    "robust-DLGPR", "robust-near-elite-DLGPR",
     "greedy-improvement", "no-diversity", "no-learning-progress", "no-ucb",
     "no-non-starvation", "no-handshake", "strict-delta-max", "relaxed-delta-min",
 }
@@ -140,6 +141,7 @@ def audit(log_dir: Path | None = None, table_dir: Path | None = None) -> tuple[b
         "table_main_results.csv": ["return_mean_up", "return_std", "return_median_up", "return_ci95", "p95_latency_ms_down", "p99_latency_ms_down", "max_latency_ms_down", "loop_overrun_rate_down", "e2e_overrun_rate_down"],
         "table_strict_vs_relaxed.csv": ["loop_overrun_rate_down", "e2e_overrun_rate_down", "p95_latency_ms_down", "p99_latency_ms_down", "max_overrun_ms_down", "unused_budget_ms_context"],
         "table_statistical_tests.csv": ["DLGPR_mean", "DLGPR_std", "DLGPR_median", "DLGPR_ci95", "comparator_mean", "comparator_std", "comparator_median", "comparator_ci95", "p_value", "p_value_holm", "effect_size_cliffs_delta"],
+        "table_aggregate_vs_dlgpr.csv": ["paired_mean_return_delta_vs_DLGPR", "paired_wins_up", "paired_losses_down", "tasks_with_positive_mean_delta_up"],
         "table_timing_profile.csv": ["charged_e2e_p99_ms_down", "actual_cpu_e2e_p99_ms_down", "actual_cpu_e2e_overrun_rate_down"],
     }
     lines.append(f"Table directory: {display_path(table_dir)}")

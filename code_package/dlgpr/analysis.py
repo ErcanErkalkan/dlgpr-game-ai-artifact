@@ -220,7 +220,7 @@ def write_environment_table(metadata_path: Path, out_path: Path) -> pd.DataFrame
 
 def summarize_scheduler_baselines(df: pd.DataFrame) -> pd.DataFrame:
     """Compare the full scheduler against fixed/round-robin/greedy alternatives."""
-    methods = ["DLGPR-full", "fixed-split", "round-robin", "greedy-improvement"]
+    methods = ["robust-DLGPR", "robust-near-elite-DLGPR", "DLGPR-full", "fixed-split", "round-robin", "greedy-improvement"]
     final = _last_per_run(df[df["method"].isin(methods)])
     rows = []
     for (task, method), g in final.groupby(["task_name", "method"]):
@@ -241,6 +241,49 @@ def summarize_scheduler_baselines(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def summarize_aggregate_vs_dlgpr(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate paired differences against DLGPR-full across tasks and seeds."""
+    final = _last_per_run(df)
+    rows = []
+    for method in sorted(m for m in final["method"].unique() if m != "DLGPR-full"):
+        diffs = []
+        task_wins = 0
+        task_losses = 0
+        task_ties = 0
+        for task, gtask in final.groupby("task_name"):
+            base = gtask[gtask.method == "DLGPR-full"][["seed", "return"]].rename(columns={"return": "base_return"})
+            comp = gtask[gtask.method == method][["seed", "return"]].rename(columns={"return": "comp_return"})
+            merged = pd.merge(base, comp, on="seed")
+            if merged.empty:
+                continue
+            diff = merged["comp_return"] - merged["base_return"]
+            diffs.extend(diff.tolist())
+            mean_diff = float(diff.mean())
+            if mean_diff > 1e-12:
+                task_wins += 1
+            elif mean_diff < -1e-12:
+                task_losses += 1
+            else:
+                task_ties += 1
+        if not diffs:
+            continue
+        arr = np.asarray(diffs, dtype=np.float64)
+        rows.append({
+            "comparator": method,
+            "paired_mean_return_delta_vs_DLGPR": float(np.mean(arr)),
+            "paired_median_return_delta_vs_DLGPR": float(np.median(arr)),
+            "paired_wins_up": int(np.sum(arr > 0)),
+            "paired_losses_down": int(np.sum(arr < 0)),
+            "paired_ties": int(np.sum(arr == 0)),
+            "tasks_with_positive_mean_delta_up": task_wins,
+            "tasks_with_negative_mean_delta_down": task_losses,
+            "tasks_with_zero_mean_delta": task_ties,
+            "n_pairs": int(arr.size),
+            "interpretation": "Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.",
+        })
+    return pd.DataFrame(rows)
+
+
 def metric_definitions() -> pd.DataFrame:
     return pd.DataFrame([
         {"metric": "return", "direction": "higher is better", "definition": "Mean episode return under the disclosed evaluation seed schedule."},
@@ -256,6 +299,7 @@ def metric_definitions() -> pd.DataFrame:
         {"metric": "actual_cpu_e2e_ms", "direction": "diagnostic; lower is better for deployment", "definition": "Measured budget-critical atomic loop plus the disclosed guard margin; separate from simulated charged-time accounting."},
         {"metric": "wall_clock_interval_ms", "direction": "diagnostic", "definition": "Measured script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric."},
         {"metric": "p_value_holm", "direction": "lower is stronger evidence", "definition": "Holm-Bonferroni adjusted paired-test p-value across the reported comparator family."},
+        {"metric": "atomic_eval_rollouts", "direction": "context", "definition": "Number of evaluation seeds used inside each atomic candidate-scoring step; robust variants set this to K."},
     ])
 
 
@@ -350,6 +394,9 @@ def analyze(log_dir: Path, table_dir: Path, fig_dir: Path) -> Dict[str, Path]:
     sched = summarize_scheduler_baselines(df)
     sched.to_csv(table_dir / "table_scheduler_baselines.csv", index=False)
     outputs["scheduler_baselines"] = table_dir / "table_scheduler_baselines.csv"
+    aggregate = summarize_aggregate_vs_dlgpr(df)
+    aggregate.to_csv(table_dir / "table_aggregate_vs_dlgpr.csv", index=False)
+    outputs["aggregate_vs_dlgpr"] = table_dir / "table_aggregate_vs_dlgpr.csv"
     metrics = metric_definitions()
     metrics.to_csv(table_dir / "table_metric_definitions.csv", index=False)
     outputs["metric_definitions"] = table_dir / "table_metric_definitions.csv"

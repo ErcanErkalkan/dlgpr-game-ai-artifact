@@ -13,6 +13,7 @@
 | Diversity value | Diagnostic | Mean behavioral-descriptor dispersion used by the scheduler. |
 | Learning progress | Diagnostic | Nonnegative short-horizon progress proxy for the RL module and distillation updates. |
 | Improvement rate | Diagnostic | Short-horizon improvement divided by charged atomic-step time. |
+| Atomic eval rollouts | Context | Number of evaluation seeds used inside each atomic candidate-scoring step. Robust variants set this to the disclosed evaluation count K; standard variants use the lighter two-rollout proxy. |
 | Handshake events | Diagnostic | Count of cross-layer injection/distillation events. |
 | Actual CPU loop wall ms | Lower is better for deployment diagnostics | Measured wall-clock duration of the budget-critical atomic-step loop, excluding offline evaluation/logging. |
 | Actual CPU E2E ms | Lower is better for deployment diagnostics | Measured budget-critical atomic loop plus the disclosed guard margin, logged separately from simulated charged-time accounting. |

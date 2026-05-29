@@ -44,11 +44,32 @@ def main_results_text(main: pd.DataFrame) -> str:
             if not full.empty:
                 row = full.iloc[0]
                 full_txt = f"mean return {row['return_mean_up']:.3f}, win rate {row['win_rate_up']:.3f}, p99 latency {row['p99_latency_ms_down']:.3f} ms"
+            robust = gt[gt.method == "robust-DLGPR"]
+            robust_txt = ""
+            if not robust.empty:
+                row = robust.iloc[0]
+                robust_txt = f" The robust-DLGPR configuration reports mean return {row['return_mean_up']:.3f} with p99 latency {row['p99_latency_ms_down']:.3f} ms."
             lines.append(
                 f"For `{task}`, the self-contained validation harness reports the best mean return for `{best['method']}` "
                 f"({best['return_mean_up']:.3f}). The DLGPR-full configuration reports {full_txt}. "
+                f"{robust_txt} "
                 "These values support implementation-level comparison under matched local budgets, not broad benchmark generalization."
             )
+    return "\n\n".join(lines) + "\n"
+
+
+def aggregate_text(aggregate: pd.DataFrame) -> str:
+    if aggregate.empty or "comparator" not in aggregate.columns:
+        return "Aggregate-vs-DLGPR table not found."
+    lines = ["## Aggregate robust-comparison diagnostic", ""]
+    subset = aggregate[aggregate["comparator"].isin(["robust-DLGPR", "robust-near-elite-DLGPR"])]
+    for _, row in subset.iterrows():
+        lines.append(
+            f"`{row['comparator']}` has paired mean return delta {row['paired_mean_return_delta_vs_DLGPR']:.3f} "
+            f"and median delta {row['paired_median_return_delta_vs_DLGPR']:.3f} over {int(row['n_pairs'])} task-seed pairs, "
+            f"with {int(row['paired_wins_up'])} wins and {int(row['paired_losses_down'])} losses against DLGPR-full. "
+            "This is an aggregate diagnostic; per-task confidence intervals and Holm-adjusted tests remain the primary evidence."
+        )
     return "\n\n".join(lines) + "\n"
 
 
@@ -101,7 +122,7 @@ def environment_appendix(meta_path: Path) -> str:
     lines = ["## Environment-disclosure appendix draft", ""]
     for task, item in meta.get("tasks", {}).items():
         lines.append(f"### {task}")
-        for key in ["environment_name", "environment_version", "benchmark_family", "observation_definition", "action_definition", "reward_definition", "episode_termination", "opponent_policy", "stochasticity_sources", "rollout_horizon_H", "number_of_rollouts_K", "B_tau_ms", "delta_min_ms", "delta_max_ms", "guard_margin_ms", "scheduler_ema_lambda", "timing_mode", "operating_system", "runtime", "library_versions"]:
+        for key in ["environment_name", "environment_version", "benchmark_family", "observation_definition", "action_definition", "reward_definition", "episode_termination", "opponent_policy", "stochasticity_sources", "rollout_horizon_H", "number_of_rollouts_K", "B_tau_ms", "delta_min_ms", "delta_max_ms", "guard_margin_ms", "scheduler_ema_lambda", "timing_mode", "atomic_eval_rollouts", "operating_system", "runtime", "library_versions"]:
             lines.append(f"- **{key}:** {item.get(key)}")
         lines.append("")
     return "\n".join(lines)
@@ -122,11 +143,13 @@ def main() -> None:
 
     main_df = load_csv(table_dir, "table_main_results.csv")
     strict_df = load_csv(table_dir, "table_strict_vs_relaxed.csv")
+    aggregate_df = load_csv(table_dir, "table_aggregate_vs_dlgpr.csv")
     parts = [
         "# Manuscript Assets Generated from Local Validation Logs\n",
         claim_boundary_text(),
         environment_appendix(log_dir / "environment_metadata.json"),
         main_results_text(main_df),
+        aggregate_text(aggregate_df),
         strict_relaxed_text(strict_df),
         figure_caption_scaffold(fig_dir),
     ]

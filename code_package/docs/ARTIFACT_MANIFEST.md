@@ -3,8 +3,8 @@
 | Path | Purpose |
 |---|---|
 | `dlgpr/envs.py` | Self-contained game-like environments with metadata. |
-| `dlgpr/modules.py` | GA, PSO, RL atomic update modules and cross-layer handoff operations. |
-| `dlgpr/scheduler.py` | DLGPR, fixed-split, round-robin, and greedy schedulers. |
+| `dlgpr/modules.py` | GA, PSO, RL atomic update modules, robust candidate scoring support, and cross-layer handoff operations. |
+| `dlgpr/scheduler.py` | DLGPR, fixed-split, round-robin, greedy, and optional experimental scheduler variants. |
 | `dlgpr/experiment.py` | Matched-budget experiment runner and logging schema. |
 | `dlgpr/analysis.py` | Table and figure generation. |
 | `dlgpr/external_adapters.py` | Optional adapter interface for external benchmarks. |
@@ -14,5 +14,6 @@
 | `scripts/audit_package.py` | Checks reviewer-critical package completeness. |
 | `tests/` | Unit and smoke tests. |
 | `logs/full_validation/` | Latest generated local validation logs. |
+| `logs/robust_external_validation/` | Named Gymnasium robust-extension logs. |
 | `paper/revised/tables/` | Manuscript-ready CSV tables. |
 | `paper/revised/figures/` | Manuscript-ready PNG figures. |

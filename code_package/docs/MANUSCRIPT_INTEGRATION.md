@@ -16,6 +16,8 @@ Use this file to update the Results and Limitations sections, but preserve the c
 
 - Environment-disclosure appendix draft -> Experimental Setup or Appendix.
 - Main results narrative -> Results after tables.
+- Robust-DLGPR and robust-near-elite-DLGPR -> Proposed Method and ablation/sensitivity subsections. State that robust variants use `atomic_eval_rollouts = K` for atomic candidate scoring.
+- Aggregate-vs-DLGPR table -> empirical summary paragraph only; do not use it to override per-task statistical tests.
 - External Gymnasium tables -> bounded external benchmark subsection.
 - Raw-CPU timing profile -> separate timing diagnostics subsection.
 - Strict vs relaxed timing paragraph -> Timing compliance subsection.
