@@ -6,7 +6,7 @@ The manuscript source and manuscript PDF are intentionally excluded. The public 
 
 ## Contents
 
-- `code_package/`: implementation, tests, analysis scripts, package documentation, Dockerfile, and runnable experiment code.
+- `code_package/`: implementation, tests, analysis scripts, package documentation, and runnable experiment code. (Note: Configuration files like `pyproject.toml`, `Dockerfile`, etc., have been moved to the root of this repository).
 - `experiments/tog2026_full_validation/`: the full local validation used by the manuscript, including 16,800 interval-log rows, 131,718 atomic-step rows, task metadata, generated tables, and generated figures.
 - `experiments/tog2026_external_gymnasium/`: a matched-budget external benchmark extension on Gymnasium tasks, including 6,720 interval-log rows and 52,687 atomic-step rows.
 - `experiments/tog2026_timing_profile/`: raw-CPU timing diagnostics for strict and relaxed do-not-start rules, including 1,500 interval-log rows and 16,158 atomic-step rows.
@@ -15,13 +15,13 @@ Generated directories named `paper/revised` contain artifact tables, figures, an
 
 ## Validation
 
-From `code_package/`:
+From the root directory:
 
 ```bash
 python -m tests.run_tests
-python scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
-python scripts/audit_package.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables
-python scripts/audit_package.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables
+python code_package/scripts/audit_package.py --log-dir experiments/tog2026_full_validation/logs/full_validation --table-dir experiments/tog2026_full_validation/paper/revised/tables
+python code_package/scripts/audit_package.py --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables
+python code_package/scripts/audit_package.py --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables
 ```
 
 Expected status:
@@ -48,3 +48,90 @@ The consistency audit is summarized in `RELEASE_CONSISTENCY.md`.
 ## License and Citation
 
 The software is released under the MIT License. Citation metadata is provided in `CITATION.cff` and `.zenodo.json`.
+
+---
+
+# DLGPR: Compute-Budgeted GA-PSO-RL Scheduler for Real-Time Game AI (Code Package Details)
+
+This repository is a from-scratch, reproducible code package for manuscript ToG-2026-0045 revision work.
+It implements a matched-budget experimental framework for a Dynamic Layered GA-PSO-RL (DLGPR) scheduler under per-interval compute budgets. The current release adds robust DLGPR variants that score atomic candidates on the disclosed evaluation-rollout set rather than on a smaller two-seed proxy.
+
+The package is intentionally self-contained: it includes lightweight game-like environments, GA/PSO/RL modules, strict and relaxed budget enforcement, scheduler baselines, ablations, metadata templates, interval logs, result tables, figures, and tests.
+
+## Why this package exists
+
+The reviewer decision highlighted several critical issues:
+
+- missing environment/task metadata,
+- pilot results that could not be interpreted without environment information,
+- unclear strict-vs-relaxed timing behavior,
+- insufficient scheduler baselines and ablations,
+- unclear metric definitions,
+- weak reproducibility artifacts.
+
+This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.5.0 adds robust candidate acceptance (`robust-DLGPR`) and a near-elite transfer-gated robustness ablation (`robust-near-elite-DLGPR`).
+
+## Quick start
+
+```bash
+python -m tests.run_tests
+python code_package/scripts/run_full_validation.py --quick
+python code_package/scripts/analyze_results.py
+```
+
+In the release repository, the manuscript-consistent full validation logs are stored at `logs/full_validation`, with generated tables at `paper/revised/tables`.
+
+External and raw-CPU timing artifacts are stored at:
+
+- `experiments/tog2026_external_gymnasium/logs/external_validation`
+- `experiments/tog2026_timing_profile/logs/timing_profile`
+
+## Full run
+
+```bash
+python code_package/scripts/run_full_validation.py --full
+python code_package/scripts/analyze_results.py
+```
+
+The full run uses more seeds and planning intervals. It is still a compact local validation harness, not a substitute for GVGAI/MicroRTS/Procgen experiments. To use external benchmarks, implement an environment factory with the same API as `dlgpr.envs`.
+
+## External benchmark and timing runs
+
+```bash
+python code_package/scripts/run_external_validation.py --full
+python code_package/scripts/analyze_results.py --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --fig-dir experiments/tog2026_external_gymnasium/paper/revised/figures
+python code_package/scripts/run_timing_profile.py --full
+python code_package/scripts/analyze_results.py --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --fig-dir experiments/tog2026_timing_profile/paper/revised/figures
+```
+
+The external run covers Gymnasium FrozenLake, deterministic FrozenLake, CliffWalking, and Blackjack. The optional MiniGrid adapter is available via `--include-minigrid`; it is included in the raw-CPU timing profile but not in the default external performance run because the simple linear policy is not a strong MiniGrid controller.
+
+## Core design
+
+Each planning interval has a gross budget `B_tau_ms` and a loop budget `allowed_ms = B_tau_ms - guard_margin_ms`.
+Atomic steps are charged using a measured/simulated duration and logged. The strict variant stops when `remaining_budget < delta_max_ms`; the relaxed variant stops when `remaining_budget < delta_min_ms`.
+
+Implemented methods:
+
+- robust-DLGPR
+- robust-near-elite-DLGPR
+- DLGPR full
+- GA-only
+- PSO-only
+- RL-only
+- fixed split GA-PSO-RL
+- round-robin scheduler
+- greedy improvement-per-ms scheduler
+- no-diversity ablation
+- no-learning-progress ablation
+- no-UCB ablation
+- no-non-starvation ablation
+- no-handshake ablation
+- strict do-not-start variant
+- relaxed do-not-start variant
+
+The robust variants use `atomic_eval_rollouts = K` for candidate scoring. The standard DLGPR and baseline methods keep the lighter two-rollout atomic proxy, so tables must disclose `atomic_eval_rollouts` whenever robust and non-robust methods are compared.
+
+## Important claim boundary
+
+The local tasks (`line-duel`, `grid-treasure`, `resource-defense`) are self-contained validation environments. They solve the metadata and reproducibility problem, but they do not replace recognized Game AI benchmarks such as GVGAI, MicroRTS, or Procgen. Use the local results as implementation and scheduler-diagnostic evidence unless external benchmark adapters are added and run.

@@ -1,6 +1,8 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -8,10 +10,13 @@ __pycache__/
 venv/
 dist/
 build/
-*.egg-info/
 .env
 .env.*
-/Paper/
+
+# OS
+.DS_Store
+
+# LaTeX
 *.aux
 *.bbl
 *.blg
@@ -19,5 +24,9 @@ build/
 *.out
 *.spl
 *.synctex.gz
+
+# Specific paths
+logs/tmp/
+/Paper/
 code_package/logs/
 code_package/paper/
