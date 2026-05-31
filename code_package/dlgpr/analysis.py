@@ -225,9 +225,17 @@ def summarize_scheduler_baselines(df: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for (task, method), g in final.groupby(["task_name", "method"]):
         lat = df[(df.task_name == task) & (df.method == method)]
+        equivalence_notes = {
+            "DLGPR-full": "timing-rule alias with strict-delta-max",
+            "strict-delta-max": "timing-rule alias with DLGPR-full",
+            "fixed-split": "static-allocation alias with round-robin",
+            "round-robin": "static-allocation alias with fixed-split",
+        }
         rows.append({
             "task_name": task,
             "scheduler": method,
+            "equivalence_group": equivalence_notes.get(method, "independent reported label"),
+            "independent_baseline_note": "These pairs are behaviorally equivalent under the reported configuration." if method in equivalence_notes else "No duplicate-equivalence warning for this scheduler label.",
             "return_mean_up": float(g["return"].mean()),
             "return_std": float(g["return"].std(ddof=1)) if len(g) > 1 else 0.0,
             "return_median_up": float(g["return"].median()),
@@ -282,6 +290,49 @@ def summarize_aggregate_vs_dlgpr(df: pd.DataFrame) -> pd.DataFrame:
             "interpretation": "Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.",
         })
     return pd.DataFrame(rows)
+
+
+def method_equivalence() -> pd.DataFrame:
+    """Machine-readable disclosure of scheduler labels that are behaviorally equivalent."""
+    note = "These pairs are behaviorally equivalent under the reported configuration."
+    return pd.DataFrame([
+        {
+            "equivalence_group": "timing-rule alias",
+            "method": "DLGPR-full",
+            "behaviorally_equivalent_to": "strict-delta-max",
+            "independent_baseline": False,
+            "scope": "reported full/local configuration",
+            "reason": "DLGPR-full already uses the strict delta_max do-not-start rule under the reported configuration.",
+            "reporting_note": note,
+        },
+        {
+            "equivalence_group": "timing-rule alias",
+            "method": "strict-delta-max",
+            "behaviorally_equivalent_to": "DLGPR-full",
+            "independent_baseline": False,
+            "scope": "reported full/local configuration",
+            "reason": "strict-delta-max is a diagnostic label for the same strict do-not-start rule used by DLGPR-full.",
+            "reporting_note": note,
+        },
+        {
+            "equivalence_group": "static-allocation alias",
+            "method": "fixed-split",
+            "behaviorally_equivalent_to": "round-robin",
+            "independent_baseline": False,
+            "scope": "reported full/local and external configurations",
+            "reason": "The reported fixed-split pattern cycles GA -> PSO -> RL, matching round-robin scheduling under the disclosed setting.",
+            "reporting_note": note,
+        },
+        {
+            "equivalence_group": "static-allocation alias",
+            "method": "round-robin",
+            "behaviorally_equivalent_to": "fixed-split",
+            "independent_baseline": False,
+            "scope": "reported full/local and external configurations",
+            "reason": "Round-robin cycles GA -> PSO -> RL, matching the fixed-split schedule used in the reported configuration.",
+            "reporting_note": note,
+        },
+    ])
 
 
 def metric_definitions() -> pd.DataFrame:
@@ -397,6 +448,9 @@ def analyze(log_dir: Path, table_dir: Path, fig_dir: Path) -> Dict[str, Path]:
     aggregate = summarize_aggregate_vs_dlgpr(df)
     aggregate.to_csv(table_dir / "table_aggregate_vs_dlgpr.csv", index=False)
     outputs["aggregate_vs_dlgpr"] = table_dir / "table_aggregate_vs_dlgpr.csv"
+    equivalence = method_equivalence()
+    equivalence.to_csv(table_dir / "table_method_equivalence.csv", index=False)
+    outputs["method_equivalence"] = table_dir / "table_method_equivalence.csv"
     metrics = metric_definitions()
     metrics.to_csv(table_dir / "table_metric_definitions.csv", index=False)
     outputs["metric_definitions"] = table_dir / "table_metric_definitions.csv"

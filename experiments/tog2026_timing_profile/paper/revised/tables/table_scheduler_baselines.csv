@@ -1,6 +1,6 @@
-task_name,scheduler,return_mean_up,return_std,return_median_up,return_ci95,win_rate_up,p99_latency_ms_down,loop_overrun_rate_down,mean_unused_loop_budget_ms_context,handshake_events_total
-gym-cliffwalking,DLGPR-full,-4.0,0.0,-4.0,0.0,0.0,77.04593699563704,0.0,27.201696999036358,400
-gym-frozenlake-4x4,DLGPR-full,0.0,0.0,0.0,0.0,0.0,67.0763940087636,0.0,34.94600599973637,884
-line-duel,DLGPR-full,0.3540000000000001,0.6126010120788243,-0.0799999999999999,0.5369684623886211,0.4,63.610317996135564,0.0,37.62898800065159,1865
-minigrid-empty-5x5,DLGPR-full,0.0,0.0,0.0,0.0,0.0,65.79502499771479,0.0,38.05376400036039,200
-resource-defense,DLGPR-full,0.15099319999999997,0.0033465324143058745,0.1526,0.002933364995179414,0.0,64.15013499390625,0.0,37.604730000020936,1801
+task_name,scheduler,equivalence_group,independent_baseline_note,return_mean_up,return_std,return_median_up,return_ci95,win_rate_up,p99_latency_ms_down,loop_overrun_rate_down,mean_unused_loop_budget_ms_context,handshake_events_total
+gym-cliffwalking,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,-4.0,0.0,-4.0,0.0,0.0,77.04593699563704,0.0,27.201696999036358,400
+gym-frozenlake-4x4,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,0.0,0.0,0.0,0.0,0.0,67.0763940087636,0.0,34.94600599973637,884
+line-duel,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,0.3540000000000001,0.6126010120788243,-0.0799999999999999,0.5369684623886211,0.4,63.610317996135564,0.0,37.62898800065159,1865
+minigrid-empty-5x5,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,0.0,0.0,0.0,0.0,0.0,65.79502499771479,0.0,38.05376400036039,200
+resource-defense,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,0.15099319999999997,0.0033465324143058745,0.1526,0.002933364995179414,0.0,64.15013499390625,0.0,37.604730000020936,1801

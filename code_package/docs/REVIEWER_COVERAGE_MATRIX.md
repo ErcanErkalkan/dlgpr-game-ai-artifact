@@ -9,3 +9,8 @@
 | Missing ablations | No-diversity, no-learning-progress, no-UCB, no-non-starvation, no-handshake included. |
 | Undefined metrics | Score, return, win rate, Steps-to-T, latency and overrun fields are explicitly logged. |
 | Figure interpretation | Analysis creates CDF, allocation, and return figures tied to result tables. |
+
+
+## Method-equivalence disclosure
+
+See `METHOD_EQUIVALENCE.md`. These pairs are behaviorally equivalent under the reported configuration: `DLGPR-full` / `strict-delta-max`, and `fixed-split` / `round-robin`. They are retained as diagnostic labels, not independent baselines.

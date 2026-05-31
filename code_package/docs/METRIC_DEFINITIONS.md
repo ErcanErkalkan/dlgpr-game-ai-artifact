@@ -23,3 +23,6 @@
 ## Timing-mode caution
 
 The default `simulated_charged` timing mode is intended to stress the scheduler deterministically. It is not a claim of real engine wall-clock performance. The separate `actual_cpu_raw` timing profile charges measured CPU time without clipping and uses a disclosed 100 ms interval budget. Manuscript text must keep charged-time validation and raw-CPU timing diagnostics separate.
+
+
+The 24 ms zero-overrun statement refers only to charged-time accounting in the main validation logs. Raw CPU wall-clock timing is reported separately under the 100 ms timing profile and should not be used as a 24 ms deployment guarantee.

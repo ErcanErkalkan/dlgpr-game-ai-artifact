@@ -6,10 +6,12 @@ import argparse
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+SCRIPT_PATH = Path(__file__).resolve()
+CODE_ROOT = SCRIPT_PATH.parents[1]
+ARTIFACT_ROOT = SCRIPT_PATH.parents[2]
+sys.path.insert(0, str(CODE_ROOT))
 
-from dlgpr.experiment import ExperimentConfig, METHODS, run_suite
+from dlgpr.experiment import ExperimentConfig, run_suite
 
 
 EXTERNAL_TASKS = [
@@ -20,6 +22,22 @@ EXTERNAL_TASKS = [
 ]
 MINIGRID_TASKS = ["minigrid-empty-5x5"]
 
+# Manuscript-consistent robust external validation method set.
+# Do not replace this with dlgpr.experiment.METHODS unless the README,
+# precomputed logs, tables, and manuscript external-validation counts are
+# intentionally regenerated and updated. The official full external run is:
+# 4 Gymnasium tasks x 10 seeds x 12 intervals x 8 methods = 3,840 interval rows.
+EXTERNAL_ROBUST_METHODS = [
+    "robust-DLGPR",
+    "robust-near-elite-DLGPR",
+    "DLGPR-full",
+    "fixed-split",
+    "round-robin",
+    "greedy-improvement",
+    "no-non-starvation",
+    "no-handshake",
+]
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -28,8 +46,8 @@ def main() -> None:
     parser.add_argument("--include-minigrid", action="store_true", help="Also run the slower MiniGrid adapter smoke task.")
     parser.add_argument(
         "--output",
-        default="../experiments/tog2026_external_gymnasium/logs/external_validation",
-        help="Output directory relative to code_package.",
+        default="experiments/tog2026_external_gymnasium/logs/external_validation",
+        help="Output directory relative to the artifact root.",
     )
     args = parser.parse_args()
 
@@ -40,9 +58,11 @@ def main() -> None:
     else:
         cfg = ExperimentConfig(tasks=tasks, seeds=[0, 1], intervals=4, horizon=32, eval_rollouts_K=2)
 
-    out = (ROOT / args.output).resolve()
-    result = run_suite(cfg, METHODS, out)
+    out = (Path(args.output) if Path(args.output).is_absolute() else ARTIFACT_ROOT / args.output).resolve()
+    result = run_suite(cfg, EXTERNAL_ROBUST_METHODS, out)
     print("External Gymnasium validation complete")
+    print(f"Methods: {len(EXTERNAL_ROBUST_METHODS)}")
+    print(f"Method list: {', '.join(EXTERNAL_ROBUST_METHODS)}")
     print(f"Interval rows: {result['interval_rows']}")
     print(f"Atomic rows: {result['atomic_rows']}")
     print(f"Output: {out}")

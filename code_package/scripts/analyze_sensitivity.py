@@ -7,15 +7,17 @@ import sys
 import pandas as pd
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_PATH = Path(__file__).resolve()
+CODE_ROOT = SCRIPT_PATH.parents[1]
+ARTIFACT_ROOT = SCRIPT_PATH.parents[2]
 
 
 def main() -> None:
-    in_path = ROOT / "logs" / "sensitivity" / "sensitivity_interval_logs.csv"
-    out_dir = ROOT / "paper" / "revised" / "tables"
+    in_path = ARTIFACT_ROOT / "code_package" / "logs" / "sensitivity" / "sensitivity_interval_logs.csv"
+    out_dir = ARTIFACT_ROOT / "code_package" / "paper" / "revised" / "tables"
     out_dir.mkdir(parents=True, exist_ok=True)
     if not in_path.exists():
-        raise SystemExit(f"Missing sensitivity log: {in_path}. Run scripts/run_sensitivity.py first.")
+        raise SystemExit(f"Missing sensitivity log: {in_path}. Run code_package/scripts/run_sensitivity.py first.")
     df = pd.read_csv(in_path)
     if "scheduler_ema_lambda" not in df.columns:
         df["scheduler_ema_lambda"] = 0.75

@@ -1,17 +1,25 @@
-task_name,scheduler,return_mean_up,return_std,return_median_up,return_ci95,win_rate_up,p99_latency_ms_down,loop_overrun_rate_down,mean_unused_loop_budget_ms_context,handshake_events_total
-gym-blackjack,DLGPR-full,-0.12,0.39101008796307146,-0.1,0.24235056334895436,0.38,23.81925782650246,0.0,2.5139927236011483,1240
-gym-blackjack,fixed-split,-0.15999999999999998,0.3747591819348053,-0.2,0.23227814743918074,0.36,23.712345951778424,0.0,2.710975210449157,1240
-gym-blackjack,greedy-improvement,-0.11999999999999997,0.39101008796307146,-0.1,0.24235056334895436,0.38,23.810693738214585,0.0,2.5623340465778437,943
-gym-blackjack,round-robin,-0.16,0.37475918193480523,-0.2,0.2322781474391807,0.36000000000000004,23.712345951778424,0.0,2.710975210449157,1240
-gym-cliffwalking,DLGPR-full,-80.0,0.0,-80.0,0.0,0.0,23.852317662562765,0.0,2.5504306973085744,1481
-gym-cliffwalking,fixed-split,-80.0,0.0,-80.0,0.0,0.0,23.881206958485976,0.0,2.4349868132769052,1224
-gym-cliffwalking,greedy-improvement,-80.0,0.0,-80.0,0.0,0.0,23.532017729115182,0.0,2.695953230831713,932
-gym-cliffwalking,round-robin,-80.0,0.0,-80.0,0.0,0.0,23.881206958485976,0.0,2.4349868132769052,1224
-gym-frozenlake-4x4,DLGPR-full,0.38000000000000006,0.2573367875415838,0.30000000000000004,0.15949899337892037,0.38000000000000006,23.583424533146125,0.0,2.558534046691314,1096
-gym-frozenlake-4x4,fixed-split,0.32000000000000006,0.10327955589886445,0.4,0.06401333194473371,0.32000000000000006,23.747691345709207,0.0,2.6540546740653896,1254
-gym-frozenlake-4x4,greedy-improvement,0.24000000000000005,0.08432740427115679,0.2,0.05226666666666666,0.24000000000000005,23.306393387632998,0.0,2.5966391371558797,932
-gym-frozenlake-4x4,round-robin,0.32,0.10327955589886445,0.4,0.06401333194473371,0.32,23.747691345709207,0.0,2.6540546740653896,1254
-gym-frozenlake-4x4-deterministic,DLGPR-full,0.1,0.31622776601683794,0.0,0.19599999999999998,0.1,23.67784565990207,0.0,2.4972655604912766,1053
-gym-frozenlake-4x4-deterministic,fixed-split,0.0,0.0,0.0,0.0,0.0,23.234235631162004,0.0,2.6869414670339906,1216
-gym-frozenlake-4x4-deterministic,greedy-improvement,0.0,0.0,0.0,0.0,0.0,23.306393387632998,0.0,2.5966391371558797,932
-gym-frozenlake-4x4-deterministic,round-robin,0.0,0.0,0.0,0.0,0.0,23.234235631162004,0.0,2.6869414670339906,1216
+task_name,scheduler,equivalence_group,independent_baseline_note,return_mean_up,return_std,return_median_up,return_ci95,win_rate_up,p99_latency_ms_down,loop_overrun_rate_down,mean_unused_loop_budget_ms_context,handshake_events_total
+gym-blackjack,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,-0.12000000000000002,0.39101008796307146,-0.1,0.24235056334895436,0.38,23.81925782650246,0.0,2.5139927236011483,1240
+gym-blackjack,fixed-split,static-allocation alias with round-robin,These pairs are behaviorally equivalent under the reported configuration.,-0.16,0.37475918193480523,-0.2,0.2322781474391807,0.36,23.712345951778424,0.0,2.710975210449157,1240
+gym-blackjack,greedy-improvement,independent reported label,No duplicate-equivalence warning for this scheduler label.,-0.12,0.39101008796307146,-0.1,0.24235056334895436,0.38,23.810693738214585,0.0,2.5623340465778437,943
+gym-blackjack,robust-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,-0.04000000000000001,0.24585451886114368,-0.1,0.15238220951862386,0.42000000000000004,23.33352267282543,0.0,2.6299877410094052,1253
+gym-blackjack,robust-near-elite-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,5.551115123125783e-18,0.24944382578492943,0.0,0.15460688499833664,0.44000000000000006,23.57803006979265,0.0,2.6834359422561898,756
+gym-blackjack,round-robin,static-allocation alias with fixed-split,These pairs are behaviorally equivalent under the reported configuration.,-0.16,0.37475918193480523,-0.2,0.2322781474391807,0.36,23.712345951778424,0.0,2.710975210449157,1240
+gym-cliffwalking,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,-80.0,0.0,-80.0,0.0,0.0,23.852317662562765,0.0,2.5504306973085744,1481
+gym-cliffwalking,fixed-split,static-allocation alias with round-robin,These pairs are behaviorally equivalent under the reported configuration.,-80.0,0.0,-80.0,0.0,0.0,23.881206958485976,0.0,2.4349868132769052,1224
+gym-cliffwalking,greedy-improvement,independent reported label,No duplicate-equivalence warning for this scheduler label.,-80.0,0.0,-80.0,0.0,0.0,23.532017729115182,0.0,2.695953230831713,932
+gym-cliffwalking,robust-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,-80.0,0.0,-80.0,0.0,0.0,23.852317662562765,0.0,2.5504306973085744,1481
+gym-cliffwalking,robust-near-elite-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,-80.0,0.0,-80.0,0.0,0.0,23.532017729115182,0.0,2.695953230831713,814
+gym-cliffwalking,round-robin,static-allocation alias with fixed-split,These pairs are behaviorally equivalent under the reported configuration.,-80.0,0.0,-80.0,0.0,0.0,23.881206958485976,0.0,2.4349868132769052,1224
+gym-frozenlake-4x4,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,0.38,0.2573367875415838,0.30000000000000004,0.15949899337892037,0.38,23.583424533146125,0.0,2.558534046691314,1096
+gym-frozenlake-4x4,fixed-split,static-allocation alias with round-robin,These pairs are behaviorally equivalent under the reported configuration.,0.32,0.10327955589886445,0.4,0.06401333194473371,0.32,23.747691345709207,0.0,2.6540546740653896,1254
+gym-frozenlake-4x4,greedy-improvement,independent reported label,No duplicate-equivalence warning for this scheduler label.,0.24000000000000005,0.08432740427115679,0.2,0.05226666666666666,0.24000000000000005,23.306393387632998,0.0,2.5966391371558797,932
+gym-frozenlake-4x4,robust-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,0.42000000000000004,0.27406406388125953,0.4,0.16986666666666664,0.42000000000000004,23.583424533146125,0.0,2.5404898484373017,1076
+gym-frozenlake-4x4,robust-near-elite-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,0.32,0.10327955589886445,0.4,0.06401333194473371,0.32,23.395387457950434,0.0,2.6991163122049064,224
+gym-frozenlake-4x4,round-robin,static-allocation alias with fixed-split,These pairs are behaviorally equivalent under the reported configuration.,0.32000000000000006,0.10327955589886445,0.4,0.06401333194473371,0.32000000000000006,23.747691345709207,0.0,2.6540546740653896,1254
+gym-frozenlake-4x4-deterministic,DLGPR-full,timing-rule alias with strict-delta-max,These pairs are behaviorally equivalent under the reported configuration.,0.1,0.31622776601683794,0.0,0.19599999999999998,0.1,23.67784565990207,0.0,2.4972655604912766,1053
+gym-frozenlake-4x4-deterministic,fixed-split,static-allocation alias with round-robin,These pairs are behaviorally equivalent under the reported configuration.,0.0,0.0,0.0,0.0,0.0,23.234235631162004,0.0,2.6869414670339906,1216
+gym-frozenlake-4x4-deterministic,greedy-improvement,independent reported label,No duplicate-equivalence warning for this scheduler label.,0.0,0.0,0.0,0.0,0.0,23.306393387632998,0.0,2.5966391371558797,932
+gym-frozenlake-4x4-deterministic,robust-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,0.1,0.31622776601683794,0.0,0.19599999999999998,0.1,23.67784565990207,0.0,2.4972655604912766,1053
+gym-frozenlake-4x4-deterministic,robust-near-elite-DLGPR,independent reported label,No duplicate-equivalence warning for this scheduler label.,0.0,0.0,0.0,0.0,0.0,23.727956693122948,0.0,2.566315413092439,1004
+gym-frozenlake-4x4-deterministic,round-robin,static-allocation alias with fixed-split,These pairs are behaviorally equivalent under the reported configuration.,0.0,0.0,0.0,0.0,0.0,23.234235631162004,0.0,2.6869414670339906,1216

@@ -6,8 +6,10 @@ from pathlib import Path
 import sys
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+SCRIPT_PATH = Path(__file__).resolve()
+CODE_ROOT = SCRIPT_PATH.parents[1]
+ARTIFACT_ROOT = SCRIPT_PATH.parents[2]
+sys.path.insert(0, str(CODE_ROOT))
 
 from dlgpr.experiment import ExperimentConfig, run_suite
 
@@ -17,7 +19,7 @@ def main() -> None:
     smoothing = [0.50, 0.75, 0.90]
     methods = ["DLGPR-full", "fixed-split", "round-robin", "greedy-improvement"]
     all_frames = []
-    out_root = ROOT / "logs" / "sensitivity"
+    out_root = ARTIFACT_ROOT / "code_package" / "logs" / "sensitivity"
     out_root.mkdir(parents=True, exist_ok=True)
     for b in budgets:
         for lam in smoothing:

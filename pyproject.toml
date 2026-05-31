@@ -1,9 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "dlgpr-tog2026"
-version = "0.4.0"
-description = "Compute-budgeted GA-PSO-RL scheduler for real-time game AI revision experiments"
+version = "0.5.0"
+description = "Charged-time compute-budgeted GA-PSO-RL scheduler for game AI validation experiments"
 requires-python = ">=3.9"
 dependencies = ["numpy", "pandas", "matplotlib", "scipy", "gymnasium", "minigrid"]
 
 [tool.setuptools]
-packages = ["dlgpr"]
+package-dir = {"" = "code_package"}
+
+[tool.setuptools.packages.find]
+where = ["code_package"]
+include = ["dlgpr*"]

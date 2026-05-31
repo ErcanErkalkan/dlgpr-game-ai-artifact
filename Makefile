@@ -1,48 +1,50 @@
 PYTHON ?= python
 
-.PHONY: test quick analyze manuscript external external-analyze timing timing-analyze sensitivity audit audit-release bundle all clean
+.PHONY: install test quick analyze manuscript external external-analyze timing timing-analyze sensitivity audit audit-release bundle all clean
+
+install:
+	$(PYTHON) -m pip install -e .
 
 test:
-	$(PYTHON) -m tests.run_tests
+	$(PYTHON) code_package/tests/run_tests.py
 
 quick:
-	$(PYTHON) scripts/run_full_validation.py --quick
+	$(PYTHON) code_package/scripts/run_full_validation.py --quick
 
 analyze:
-	$(PYTHON) scripts/analyze_results.py
+	$(PYTHON) code_package/scripts/analyze_results.py --log-dir code_package/logs/full_validation --table-dir code_package/paper/revised/tables --fig-dir code_package/paper/revised/figures
 
 synthetic-manuscript:
-	$(PYTHON) scripts/make_manuscript_assets.py
+	$(PYTHON) code_package/scripts/make_manuscript_assets.py
 
 external:
-	$(PYTHON) scripts/run_external_validation.py --full
+	$(PYTHON) code_package/scripts/run_external_validation.py --full
 
 external-analyze:
-	$(PYTHON) scripts/analyze_results.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables --fig-dir ../experiments/tog2026_external_gymnasium/paper/revised/figures
+	$(PYTHON) code_package/scripts/analyze_results.py --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --fig-dir experiments/tog2026_external_gymnasium/paper/revised/figures
 
 timing:
-	$(PYTHON) scripts/run_timing_profile.py --full
+	$(PYTHON) code_package/scripts/run_timing_profile.py --full
 
 timing-analyze:
-	$(PYTHON) scripts/analyze_results.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables --fig-dir ../experiments/tog2026_timing_profile/paper/revised/figures
+	$(PYTHON) code_package/scripts/analyze_results.py --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --fig-dir experiments/tog2026_timing_profile/paper/revised/figures
 
 sensitivity:
-	$(PYTHON) scripts/run_sensitivity.py
-	$(PYTHON) scripts/analyze_sensitivity.py
+	$(PYTHON) code_package/scripts/run_sensitivity.py
+	$(PYTHON) code_package/scripts/analyze_sensitivity.py
 
 audit:
-	$(PYTHON) scripts/audit_package.py
+	$(PYTHON) code_package/scripts/audit_package.py --profile full --out experiments/tog2026_full_validation/PACKAGE_AUDIT_REPORT.md
+	$(PYTHON) code_package/scripts/audit_package.py --profile external --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --out experiments/tog2026_external_gymnasium/PACKAGE_AUDIT_REPORT.md
+	$(PYTHON) code_package/scripts/audit_package.py --profile timing --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --out experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
 
-audit-release:
-	$(PYTHON) scripts/audit_package.py --log-dir ../experiments/tog2026_full_validation/logs/full_validation --table-dir ../experiments/tog2026_full_validation/paper/revised/tables
-	$(PYTHON) scripts/audit_package.py --log-dir ../experiments/tog2026_external_gymnasium/logs/external_validation --table-dir ../experiments/tog2026_external_gymnasium/paper/revised/tables
-	$(PYTHON) scripts/audit_package.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables
+audit-release: audit
 
 bundle:
-	$(PYTHON) scripts/make_submission_bundle.py
+	$(PYTHON) code_package/scripts/make_submission_bundle.py
 
 all: test quick analyze synthetic-manuscript sensitivity audit bundle
 
 clean:
-	rm -rf logs/full_validation logs/sensitivity paper/revised/tables paper/revised/figures paper/revised/manuscript_assets __pycache__ .pytest_cache
+	rm -rf code_package/logs/full_validation code_package/logs/sensitivity code_package/paper/revised/tables code_package/paper/revised/figures code_package/paper/revised/manuscript_assets __pycache__ .pytest_cache *.egg-info code_package/*.egg-info
 	find . -name "*.pyc" -delete

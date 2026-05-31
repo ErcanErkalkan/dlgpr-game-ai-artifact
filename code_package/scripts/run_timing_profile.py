@@ -6,8 +6,10 @@ import argparse
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+SCRIPT_PATH = Path(__file__).resolve()
+CODE_ROOT = SCRIPT_PATH.parents[1]
+ARTIFACT_ROOT = SCRIPT_PATH.parents[2]
+sys.path.insert(0, str(CODE_ROOT))
 
 from dlgpr.experiment import ExperimentConfig, run_suite
 
@@ -22,8 +24,8 @@ def main() -> None:
     parser.add_argument("--full", action="store_true", help="Run the manuscript-scale raw-CPU timing profile.")
     parser.add_argument(
         "--output",
-        default="../experiments/tog2026_timing_profile/logs/timing_profile",
-        help="Output directory relative to code_package.",
+        default="experiments/tog2026_timing_profile/logs/timing_profile",
+        help="Output directory relative to the artifact root.",
     )
     args = parser.parse_args()
 
@@ -54,7 +56,7 @@ def main() -> None:
             timing_mode="actual_cpu_raw",
         )
 
-    out = (ROOT / args.output).resolve()
+    out = (Path(args.output) if Path(args.output).is_absolute() else ARTIFACT_ROOT / args.output).resolve()
     result = run_suite(cfg, TIMING_METHODS, out)
     print("Raw-CPU timing profile complete")
     print(f"Interval rows: {result['interval_rows']}")

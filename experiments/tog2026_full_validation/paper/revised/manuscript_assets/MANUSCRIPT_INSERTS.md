@@ -26,6 +26,7 @@ The local experiments are self-contained validation tasks designed to verify sch
 - **guard_margin_ms:** 2.0
 - **scheduler_ema_lambda:** 0.75
 - **timing_mode:** simulated_charged
+- **atomic_eval_rollouts:** 2
 - **operating_system:** Windows-11-10.0.26200-SP0
 - **runtime:** Python 3.14.3
 - **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1', 'gymnasium': '1.3.0', 'minigrid': '3.1.0'}
@@ -48,6 +49,7 @@ The local experiments are self-contained validation tasks designed to verify sch
 - **guard_margin_ms:** 2.0
 - **scheduler_ema_lambda:** 0.75
 - **timing_mode:** simulated_charged
+- **atomic_eval_rollouts:** 2
 - **operating_system:** Windows-11-10.0.26200-SP0
 - **runtime:** Python 3.14.3
 - **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1', 'gymnasium': '1.3.0', 'minigrid': '3.1.0'}
@@ -70,6 +72,7 @@ The local experiments are self-contained validation tasks designed to verify sch
 - **guard_margin_ms:** 2.0
 - **scheduler_ema_lambda:** 0.75
 - **timing_mode:** simulated_charged
+- **atomic_eval_rollouts:** 2
 - **operating_system:** Windows-11-10.0.26200-SP0
 - **runtime:** Python 3.14.3
 - **library_versions:** {'numpy': '2.4.3', 'pandas': '3.0.1', 'matplotlib': '3.10.8', 'scipy': '1.17.1', 'gymnasium': '1.3.0', 'minigrid': '3.1.0'}
@@ -83,11 +86,20 @@ Throughout the local validation tables, higher values are better for return, sco
 
 
 
-For `grid-treasure`, the self-contained validation harness reports the best mean return for `no-handshake` (-0.052). The DLGPR-full configuration reports mean return -0.145, win rate 0.440, p99 latency 23.587 ms. These values support implementation-level comparison under matched local budgets, not broad benchmark generalization.
+For `grid-treasure`, the self-contained validation harness reports the best mean return for `robust-DLGPR` (0.141). The DLGPR-full configuration reports mean return -0.145, win rate 0.440, p99 latency 23.587 ms.  The robust-DLGPR configuration reports mean return 0.141 with p99 latency 23.554 ms. These values support implementation-level comparison under matched local budgets, not broad benchmark generalization.
 
-For `line-duel`, the self-contained validation harness reports the best mean return for `relaxed-delta-min` (-0.116). The DLGPR-full configuration reports mean return -0.118, win rate 0.440, p99 latency 23.720 ms. These values support implementation-level comparison under matched local budgets, not broad benchmark generalization.
+For `line-duel`, the self-contained validation harness reports the best mean return for `robust-near-elite-DLGPR` (0.019). The DLGPR-full configuration reports mean return -0.118, win rate 0.440, p99 latency 23.720 ms.  The robust-DLGPR configuration reports mean return -0.024 with p99 latency 23.683 ms. These values support implementation-level comparison under matched local budgets, not broad benchmark generalization.
 
-For `resource-defense`, the self-contained validation harness reports the best mean return for `no-non-starvation` (1.512). The DLGPR-full configuration reports mean return 1.504, win rate 0.000, p99 latency 23.614 ms. These values support implementation-level comparison under matched local budgets, not broad benchmark generalization.
+For `resource-defense`, the self-contained validation harness reports the best mean return for `no-non-starvation` (1.512). The DLGPR-full configuration reports mean return 1.504, win rate 0.000, p99 latency 23.614 ms.  The robust-DLGPR configuration reports mean return 1.446 with p99 latency 23.771 ms. These values support implementation-level comparison under matched local budgets, not broad benchmark generalization.
+
+
+## Aggregate robust-comparison diagnostic
+
+
+
+`robust-DLGPR` has paired mean return delta 0.107 and median delta 0.024 over 30 task-seed pairs, with 19 wins and 6 losses against DLGPR-full. This is an aggregate diagnostic; per-task confidence intervals and Holm-adjusted tests remain the primary evidence.
+
+`robust-near-elite-DLGPR` has paired mean return delta 0.135 and median delta 0.018 over 30 task-seed pairs, with 20 wins and 5 losses against DLGPR-full. This is an aggregate diagnostic; per-task confidence intervals and Holm-adjusted tests remain the primary evidence.
 
 
 ## Strict versus relaxed timing interpretation

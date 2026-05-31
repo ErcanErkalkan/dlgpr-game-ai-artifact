@@ -17,3 +17,8 @@
 | `logs/robust_external_validation/` | Named Gymnasium robust-extension logs. |
 | `paper/revised/tables/` | Manuscript-ready CSV tables. |
 | `paper/revised/figures/` | Manuscript-ready PNG figures. |
+
+
+## Method-equivalence disclosure
+
+See `METHOD_EQUIVALENCE.md`. These pairs are behaviorally equivalent under the reported configuration: `DLGPR-full` / `strict-delta-max`, and `fixed-split` / `round-robin`. They are retained as diagnostic labels, not independent baselines.

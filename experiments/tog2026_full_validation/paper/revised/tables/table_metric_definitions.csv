@@ -12,3 +12,4 @@ actual_cpu_loop_wall_ms,diagnostic; lower is better for deployment,"Measured wal
 actual_cpu_e2e_ms,diagnostic; lower is better for deployment,Measured budget-critical atomic loop plus the disclosed guard margin; separate from simulated charged-time accounting.
 wall_clock_interval_ms,diagnostic,Measured script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric.
 p_value_holm,lower is stronger evidence,Holm-Bonferroni adjusted paired-test p-value across the reported comparator family.
+atomic_eval_rollouts,context,Number of evaluation seeds used inside each atomic candidate-scoring step; robust variants set this to K.

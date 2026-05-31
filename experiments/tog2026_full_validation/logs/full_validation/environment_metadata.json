@@ -160,8 +160,10 @@
       "guard_margin_ms": 2.0,
       "environment_step_cap_per_interval": 32,
       "evaluation_cadence": 1,
+      "atomic_eval_rollouts": 2,
       "timing_mode": "simulated_charged",
       "scheduler_ema_lambda": 0.75,
+      "risk_adaptive_scheduler": "RAPID-DLGPR and RAPID-racing-DLGPR learn module-specific do-not-start thresholds from charged-duration histories; these variants are bounded-risk diagnostics and are reported separately from strict_delta_max theorem validation.",
       "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
       "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge."
     },
@@ -292,8 +294,10 @@
       "guard_margin_ms": 2.0,
       "environment_step_cap_per_interval": 32,
       "evaluation_cadence": 1,
+      "atomic_eval_rollouts": 2,
       "timing_mode": "simulated_charged",
       "scheduler_ema_lambda": 0.75,
+      "risk_adaptive_scheduler": "RAPID-DLGPR and RAPID-racing-DLGPR learn module-specific do-not-start thresholds from charged-duration histories; these variants are bounded-risk diagnostics and are reported separately from strict_delta_max theorem validation.",
       "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
       "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge."
     },
@@ -424,8 +428,10 @@
       "guard_margin_ms": 2.0,
       "environment_step_cap_per_interval": 32,
       "evaluation_cadence": 1,
+      "atomic_eval_rollouts": 2,
       "timing_mode": "simulated_charged",
       "scheduler_ema_lambda": 0.75,
+      "risk_adaptive_scheduler": "RAPID-DLGPR and RAPID-racing-DLGPR learn module-specific do-not-start thresholds from charged-duration histories; these variants are bounded-risk diagnostics and are reported separately from strict_delta_max theorem validation.",
       "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
       "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge."
     }

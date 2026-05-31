@@ -4,13 +4,13 @@ This directory stores the raw-CPU timing diagnostic used by the revised manuscri
 
 ## Generation commands
 
-Run from `code_package/`:
+Run from the artifact root:
 
 ```bash
-python scripts/run_timing_profile.py --full
-python scripts/analyze_results.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables --fig-dir ../experiments/tog2026_timing_profile/paper/revised/figures
-python scripts/make_manuscript_assets.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables --fig-dir ../experiments/tog2026_timing_profile/paper/revised/figures --out-dir ../experiments/tog2026_timing_profile/paper/revised/manuscript_assets
-python scripts/audit_package.py --log-dir ../experiments/tog2026_timing_profile/logs/timing_profile --table-dir ../experiments/tog2026_timing_profile/paper/revised/tables --out ../experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/run_timing_profile.py --full
+python code_package/scripts/analyze_results.py --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --fig-dir experiments/tog2026_timing_profile/paper/revised/figures
+python code_package/scripts/make_manuscript_assets.py --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --fig-dir experiments/tog2026_timing_profile/paper/revised/figures --out-dir experiments/tog2026_timing_profile/paper/revised/manuscript_assets
+python code_package/scripts/audit_package.py --profile timing --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --out experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
 ```
 
 ## Run summary
@@ -28,3 +28,6 @@ python scripts/audit_package.py --log-dir ../experiments/tog2026_timing_profile/
 ## Claim boundary
 
 These logs support measured-CPU timing diagnostics for the strict and relaxed stopping rules. They are not the main performance validation because the budget and rollout horizon differ from the 24 ms charged-time validation.
+
+
+Timing-claim boundary: this profile is a raw CPU wall-clock diagnostic under a calibrated 100 ms budget. It is not a 24 ms deployment or game-engine real-time guarantee; the 24 ms zero-overrun statement belongs to the charged-time validation logs.

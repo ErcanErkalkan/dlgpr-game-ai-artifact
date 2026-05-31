@@ -12,7 +12,9 @@ import pandas as pd
 import json
 import argparse
 
-ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_PATH = Path(__file__).resolve()
+CODE_ROOT = SCRIPT_PATH.parents[1]
+ARTIFACT_ROOT = SCRIPT_PATH.parents[2]
 
 
 def load_csv(table_dir: Path, name: str) -> pd.DataFrame:
@@ -32,7 +34,7 @@ def metric_direction_note() -> str:
 
 def main_results_text(main: pd.DataFrame) -> str:
     if main.empty:
-        return "Main-result table not found. Run scripts/analyze_results.py first."
+        return "Main-result table not found. Run code_package/scripts/analyze_results.py first."
     lines = ["## Manuscript-ready Results Narrative", "", metric_direction_note(), ""]
     for task in sorted(main["task_name"].unique()):
         gt = main[main.task_name == task].copy()
@@ -130,15 +132,15 @@ def environment_appendix(meta_path: Path) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--table-dir", default="paper/revised/tables")
-    parser.add_argument("--fig-dir", default="paper/revised/figures")
-    parser.add_argument("--log-dir", default="logs/full_validation")
-    parser.add_argument("--out-dir", default="paper/revised/manuscript_assets")
+    parser.add_argument("--table-dir", default="code_package/paper/revised/tables")
+    parser.add_argument("--fig-dir", default="code_package/paper/revised/figures")
+    parser.add_argument("--log-dir", default="code_package/logs/full_validation")
+    parser.add_argument("--out-dir", default="code_package/paper/revised/manuscript_assets")
     args = parser.parse_args()
-    table_dir = ROOT / args.table_dir
-    fig_dir = ROOT / args.fig_dir
-    log_dir = ROOT / args.log_dir
-    out_dir = ROOT / args.out_dir
+    table_dir = Path(args.table_dir) if Path(args.table_dir).is_absolute() else ARTIFACT_ROOT / args.table_dir
+    fig_dir = Path(args.fig_dir) if Path(args.fig_dir).is_absolute() else ARTIFACT_ROOT / args.fig_dir
+    log_dir = Path(args.log_dir) if Path(args.log_dir).is_absolute() else ARTIFACT_ROOT / args.log_dir
+    out_dir = Path(args.out_dir) if Path(args.out_dir).is_absolute() else ARTIFACT_ROOT / args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     main_df = load_csv(table_dir, "table_main_results.csv")
