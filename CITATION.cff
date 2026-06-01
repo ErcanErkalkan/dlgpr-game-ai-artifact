@@ -6,7 +6,7 @@ authors:
   - family-names: Erkalkan
     given-names: Ercan
 year: 2026
-version: 0.5.1
+version: 0.6.0
 doi: "10.5281/zenodo.20447918"
-repository-code: "https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.5.1"
+repository-code: "https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.6.0"
 license: MIT

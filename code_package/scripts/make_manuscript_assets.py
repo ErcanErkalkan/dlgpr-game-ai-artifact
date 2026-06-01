@@ -124,7 +124,7 @@ def environment_appendix(meta_path: Path) -> str:
     lines = ["## Environment-disclosure appendix draft", ""]
     for task, item in meta.get("tasks", {}).items():
         lines.append(f"### {task}")
-        for key in ["environment_name", "environment_version", "benchmark_family", "observation_definition", "action_definition", "reward_definition", "episode_termination", "opponent_policy", "stochasticity_sources", "rollout_horizon_H", "number_of_rollouts_K", "B_tau_ms", "delta_min_ms", "delta_max_ms", "guard_margin_ms", "scheduler_ema_lambda", "timing_mode", "atomic_eval_rollouts", "operating_system", "runtime", "library_versions"]:
+        for key in ["environment_name", "environment_version", "benchmark_family", "observation_definition", "action_definition", "reward_definition", "episode_termination", "opponent_policy", "stochasticity_sources", "rollout_horizon_H", "number_of_rollouts_K", "B_tau_ms", "budget_unit", "rollout_charge_ms", "delta_min_ms", "delta_max_ms", "guard_margin_ms", "scheduler_ema_lambda", "timing_mode", "atomic_eval_rollouts", "operating_system", "runtime", "library_versions"]:
             lines.append(f"- **{key}:** {item.get(key)}")
         lines.append("")
     return "\n".join(lines)

@@ -31,6 +31,18 @@ The previous non-robust 14-method logs were removed from the official experiment
 - This audit verifies the requested log replacement only. It does not claim that the package-level audit script is fixed.
 - The root README and experiment READMEs were updated to remove stale 14-method row counts.
 
+## v0.6.0 supplementary compute-matched logs
+
+The immutable replacement audit above remains valid. Version `v0.6.0` adds:
+
+- `experiments/ec2026_compute_matched_rollout/`: 9,600 interval rows and
+  134,027 atomic rows under rollout-equivalent online accounting.
+- `experiments/ec2026_minigrid_performance/`: 960 interval rows and 13,543
+  atomic rows for the fully observable MiniGrid Empty-5x5 integration.
+
+These supplementary logs are audited separately by `audit_package.py` profiles
+`compute-matched` and `minigrid-performance`.
+
 
 ## Method-equivalence note
 

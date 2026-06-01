@@ -14,6 +14,7 @@ class TestExternalBenchmarks(unittest.TestCase):
             "gym-cliffwalking",
             "gym-blackjack",
             "minigrid-empty-5x5",
+            "minigrid-empty-5x5-fullyobs",
         ]:
             with self.subTest(task=task):
                 env = make_env(task, seed=0)
@@ -30,6 +31,7 @@ class TestExternalBenchmarks(unittest.TestCase):
             "gym-cliffwalking",
             "gym-blackjack",
             "minigrid-empty-5x5",
+            "minigrid-empty-5x5-fullyobs",
         ]:
             with self.subTest(task=task):
                 env = make_env(task, seed=1)

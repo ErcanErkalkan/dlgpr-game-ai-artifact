@@ -26,6 +26,8 @@ Use this file to update the Results and Limitations sections, but preserve the c
 - Aggregate-vs-DLGPR table -> empirical summary paragraph only; do not use it to override per-task statistical tests.
 - External Gymnasium tables -> bounded external benchmark subsection.
 - Raw-CPU timing profile -> separate timing diagnostics subsection.
+- Rollout-equivalent local comparison -> primary robust-versus-standard compute-matched performance subsection.
+- MiniGrid `Empty-5x5` performance table -> bounded recognized-benchmark subsection; disclose `FullyObsWrapper`, goal-relative features, and the restricted three-action adapter.
 - Strict vs relaxed timing paragraph -> Timing compliance subsection.
 - Claim-boundary paragraph -> Limitations.
 - Figure scaffold -> rewrite as figure-specific discussion paragraphs.

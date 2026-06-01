@@ -1,0 +1,2 @@
+task_name,variant,return_mean_up,return_std,return_median_up,return_ci95,delta_return_vs_full,win_rate_up,p99_latency_ms_down,interpretation
+minigrid-empty-5x5-fullyobs,DLGPR-full,0.47569999999999996,0.5014605445872863,0.4685,0.35872326364232565,0.0,0.5,40.0,full model reference

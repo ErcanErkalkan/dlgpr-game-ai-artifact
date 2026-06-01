@@ -1,0 +1,4 @@
+task_name,variant,return_mean_up,return_std,return_median_up,return_ci95,delta_return_vs_full,win_rate_up,p99_latency_ms_down,interpretation
+grid-treasure,DLGPR-full,-0.18519999999999998,0.41818252261688577,-0.2259999999999999,0.2991497555102229,0.0,0.42000000000000004,40.0,full model reference
+line-duel,DLGPR-full,-0.20340000000000003,0.33607809938894995,-0.197,0.24041578934338076,0.0,0.4,40.0,full model reference
+resource-defense,DLGPR-full,1.5381189999999998,0.12353282100490993,1.5384435999999997,0.0883700566199003,0.0,0.0,40.0,full model reference

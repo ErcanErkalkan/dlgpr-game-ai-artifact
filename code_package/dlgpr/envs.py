@@ -486,4 +486,32 @@ def make_env(task: str, seed: int = 0) -> BaseGameEnv:
             max_steps=100,
         )
         return GymnasiumDiscreteAdapter(lambda s: gym.make("MiniGrid-Empty-5x5-v0"), metadata, seed)
+    if task == "minigrid-empty-5x5-fullyobs":
+        import gymnasium as gym
+        import minigrid  # noqa: F401 - importing registers MiniGrid environments
+        from minigrid.wrappers import FullyObsWrapper
+        from .external_adapters import GymnasiumDiscreteAdapter, minigrid_fully_observable_goal_features
+        metadata = EnvMetadata(
+            environment_name="MiniGrid/MiniGrid-Empty-5x5-v0/FullyObsWrapper",
+            environment_version="3.1.0",
+            benchmark_family="minigrid",
+            task_name="MiniGrid-Empty-5x5-v0-fullyobs-goal-features",
+            observation_definition="[agent_xy, goal_xy, relative_goal_xy, direction_onehot, bias] extracted from the FullyObsWrapper symbolic grid.",
+            observation_preprocessing="MiniGrid FullyObsWrapper exposes the compact symbolic full grid. The adapter extracts normalized agent and goal coordinates, normalized relative coordinates, a four-value direction one-hot vector, and a bias term.",
+            action_definition="Adapter-restricted discrete action set: 0=left, 1=right, 2=forward. MiniGrid Empty's unused pickup, drop, toggle, and done actions are intentionally omitted.",
+            action_space_type="discrete",
+            action_space_size=3,
+            reward_definition="MiniGrid sparse goal reward with built-in time penalty; zero for non-goal transitions.",
+            episode_termination="Goal reached or MiniGrid time-limit truncation.",
+            opponent_policy="No opponent; the regular Empty-5x5 task places the agent in the corner opposite the goal.",
+            stochasticity_sources="MiniGrid reset seed controls environment RNG state. The regular Empty-5x5 task uses a fixed room layout; the disclosed adapter retains the seeded reset schedule.",
+            max_steps=100,
+        )
+        return GymnasiumDiscreteAdapter(
+            lambda s: FullyObsWrapper(gym.make("MiniGrid-Empty-5x5-v0")),
+            metadata,
+            seed,
+            obs_formatter=minigrid_fully_observable_goal_features,
+            action_map=(0, 1, 2),
+        )
     raise ValueError(f"Unknown task: {task}")

@@ -15,6 +15,7 @@ Every experiment must disclose:
 - evaluation cadence,
 - rollout horizon H,
 - number of rollouts K,
+- budget unit and rollout-equivalent charge when normalized compute accounting is used,
 - performance threshold T if Steps-to-T is reported,
 - hardware and runtime,
 - OS and library versions,

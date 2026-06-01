@@ -1,7 +1,7 @@
 {
   "title": "DLGPR Game AI Artifact: Charged-Time Compute-Budgeted GA-PSO-RL Scheduler",
   "upload_type": "software",
-  "description": "Reproducibility artifact for the DLGPR Game AI validation package. The archive contains source code, experiment runners, metadata-complete validation logs, statistical tables, figures, tests, and documentation for a charged-time compute-budgeted GA-PSO-RL scheduler. The manuscript source and manuscript PDF are intentionally excluded from this artifact.",
+  "description": "Reproducibility artifact for the DLGPR Game AI validation package. The archive contains source code, experiment runners, metadata-complete validation logs, rollout-equivalent compute-matched experiments, MiniGrid Empty-5x5 performance validation, statistical tables, figures, tests, and documentation for a compute-budgeted GA-PSO-RL scheduler. The manuscript source and manuscript PDF are intentionally excluded from this artifact.",
   "creators": [
     {
       "name": "Erkalkan, Ercan",
@@ -9,11 +9,11 @@
     }
   ],
   "license": "MIT",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "publication_date": "2026-06-01",
   "related_identifiers": [
     {
-      "identifier": "https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.5.1",
+      "identifier": "https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.6.0",
       "relation": "isSupplementTo",
       "resource_type": "software"
     }
@@ -28,7 +28,8 @@
     "reproducibility artifact",
     "Gymnasium",
     "MiniGrid",
-    "raw CPU timing"
+    "raw CPU timing",
+    "rollout-equivalent compute matching"
   ],
   "access_right": "open"
 }

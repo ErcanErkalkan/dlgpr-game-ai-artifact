@@ -14,7 +14,7 @@ class TestAnalysisOutputs(unittest.TestCase):
             methods = ["DLGPR-full", "fixed-split", "round-robin", "greedy-improvement", "no-handshake", "strict-delta-max", "relaxed-delta-min"]
             run_suite(cfg, methods, root / "logs")
             outputs = analyze(root / "logs", root / "tables", root / "figures")
-            for key in ["scheduler_baselines", "method_equivalence", "metric_definitions", "claim_limits", "stats"]:
+            for key in ["scheduler_baselines", "method_equivalence", "metric_definitions", "claim_limits", "stats", "compute_accounting"]:
                 self.assertIn(key, outputs)
                 self.assertTrue(outputs[key].exists())
             main_text = outputs["main"].read_text(encoding="utf-8")
@@ -22,6 +22,7 @@ class TestAnalysisOutputs(unittest.TestCase):
             equivalence_text = outputs["method_equivalence"].read_text(encoding="utf-8")
             self.assertIn("return_median_up", main_text)
             self.assertIn("comparator_median", stats_text)
+            self.assertIn("effect_size_paired_rank_biserial", stats_text)
             self.assertIn("DLGPR-full", equivalence_text)
             self.assertIn("strict-delta-max", equivalence_text)
             self.assertIn("fixed-split", equivalence_text)

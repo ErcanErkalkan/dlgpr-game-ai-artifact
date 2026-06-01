@@ -1,8 +1,8 @@
 # Release Consistency Report
 
-Official release tag: `v0.5.1`
+Official release tag: `v0.6.0`
 
-The release metadata has been normalized to `0.5.1` / `v0.5.1` across:
+The release metadata has been normalized to `0.6.0` / `v0.6.0` across:
 
 - `README.md`
 - `pyproject.toml`
@@ -10,6 +10,6 @@ The release metadata has been normalized to `0.5.1` / `v0.5.1` across:
 - `CITATION.cff`
 - `.zenodo.json`
 - `VERSION`
-- release archive name `dlgpr-game-ai-artifact-v0.5.1.zip`
+- release archive name `dlgpr-game-ai-artifact-v0.6.0.zip`
 
 The distributed archive excludes `.git/`, `__pycache__/`, `*.pyc`, Python egg-info metadata, and nested legacy ZIP archives.

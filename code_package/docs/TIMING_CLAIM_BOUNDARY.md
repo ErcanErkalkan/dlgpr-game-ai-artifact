@@ -10,6 +10,10 @@ The main local and Gymnasium validation logs use the disclosed `simulated_charge
 
 The raw-CPU timing profile uses `actual_cpu_raw` timing and a separate calibrated 100 ms interval budget. It measures Python CPU behavior of the implementation and is useful for diagnostics, but it is not a 24 ms game-engine wall-clock guarantee.
 
+## Rollout-equivalent performance accounting
+
+The `ec2026_compute_matched_rollout` experiment uses `rollout_normalized` accounting for performance comparison. Its budget unit is one online rollout equivalent, not one millisecond. Keep this separate from both the 24 ms charged-time contract diagnostic and the 100 ms raw-CPU profile.
+
 ## Required wording
 
 Use: `zero strict-rule charged-time overruns under the disclosed 24 ms charged-time budget`.

@@ -8,7 +8,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .metrics import mean_std_ci, paired_sign_test_p_value, paired_wilcoxon_p_value, cliffs_delta, holm_bonferroni
+from .metrics import (
+    mean_std_ci,
+    paired_cohens_dz,
+    paired_mean_difference_ci,
+    paired_rank_biserial,
+    paired_wilcoxon_p_value,
+    holm_bonferroni,
+)
 
 
 def _last_per_run(df: pd.DataFrame) -> pd.DataFrame:
@@ -28,6 +35,7 @@ def summarize_main(df: pd.DataFrame) -> pd.DataFrame:
         rows.append({
             "task_name": task,
             "method": method,
+            "budget_unit": subset["budget_unit"].iloc[0] if "budget_unit" in subset else "ms",
             "return_mean_up": ret_mean,
             "return_std": ret_std,
             "return_median_up": float(np.median(g["return"])),
@@ -47,6 +55,7 @@ def summarize_main(df: pd.DataFrame) -> pd.DataFrame:
             "actual_cpu_e2e_p99_ms_down": float(np.percentile(subset["actual_cpu_e2e_ms"], 99)) if is_raw_timing and "actual_cpu_e2e_ms" in subset else np.nan,
             "actual_cpu_e2e_max_ms_down": float(np.max(subset["actual_cpu_e2e_ms"])) if is_raw_timing and "actual_cpu_e2e_ms" in subset else np.nan,
             "actual_cpu_e2e_overrun_rate_down": float(np.mean(subset["actual_cpu_e2e_overrun"].astype(bool))) if is_raw_timing and "actual_cpu_e2e_overrun" in subset else np.nan,
+            "rollout_equivalents_mean_per_interval_context": float(subset["total_rollout_equivalents"].mean()) if "total_rollout_equivalents" in subset else np.nan,
         })
     return pd.DataFrame(rows)
 
@@ -83,7 +92,7 @@ def summarize_ablation(df: pd.DataFrame) -> pd.DataFrame:
         full_mean = float(full["return"].mean()) if len(full) else np.nan
         for method, g in gtask.groupby("method"):
             g = g.sort_values("seed")
-            variant_mean = float(g["return"].mean())
+            variant_mean, variant_std, variant_ci = mean_std_ci(g["return"])
             delta = float(variant_mean - full_mean) if np.isfinite(full_mean) else np.nan
             if method == "DLGPR-full":
                 interpretation = "full model reference"
@@ -97,9 +106,9 @@ def summarize_ablation(df: pd.DataFrame) -> pd.DataFrame:
                 "task_name": task,
                 "variant": method,
                 "return_mean_up": variant_mean,
-                "return_std": float(g["return"].std(ddof=1)) if len(g) > 1 else 0.0,
+                "return_std": variant_std,
                 "return_median_up": float(g["return"].median()),
-                "return_ci95": float(1.96 * g["return"].std(ddof=1) / np.sqrt(len(g))) if len(g) > 1 else 0.0,
+                "return_ci95": variant_ci,
                 "delta_return_vs_full": delta,
                 "win_rate_up": float(g["win"].mean()),
                 "p99_latency_ms_down": float(np.percentile(df[(df.task_name == task) & (df.method == method)]["e2e_time_ms"], 99)),
@@ -121,22 +130,29 @@ def statistical_tests(df: pd.DataFrame) -> pd.DataFrame:
             comp = comp.sort_values("seed")
             merged = pd.merge(full[["seed", "return"]], comp[["seed", "return"]], on="seed", suffixes=("_full", "_comp"))
             p_value, test_name = paired_wilcoxon_p_value(merged["return_full"], merged["return_comp"])
+            dlgpr_mean, dlgpr_std, dlgpr_ci = mean_std_ci(merged["return_full"])
+            comp_mean, comp_std, comp_ci = mean_std_ci(merged["return_comp"])
+            paired_mean, paired_ci_low, paired_ci_high = paired_mean_difference_ci(merged["return_full"], merged["return_comp"])
             comp_lat = df[(df.task_name == task) & (df.method == method)]
             rows.append({
                 "task_name": task,
                 "comparator": method,
                 "metric": "return",
-                "DLGPR_mean": float(merged["return_full"].mean()),
-                "DLGPR_std": float(merged["return_full"].std(ddof=1)) if len(merged) > 1 else 0.0,
+                "DLGPR_mean": dlgpr_mean,
+                "DLGPR_std": dlgpr_std,
                 "DLGPR_median": float(merged["return_full"].median()),
-                "DLGPR_ci95": float(1.96 * merged["return_full"].std(ddof=1) / np.sqrt(len(merged))) if len(merged) > 1 else 0.0,
-                "comparator_mean": float(merged["return_comp"].mean()),
-                "comparator_std": float(merged["return_comp"].std(ddof=1)) if len(merged) > 1 else 0.0,
+                "DLGPR_ci95": dlgpr_ci,
+                "comparator_mean": comp_mean,
+                "comparator_std": comp_std,
                 "comparator_median": float(merged["return_comp"].median()),
-                "comparator_ci95": float(1.96 * merged["return_comp"].std(ddof=1) / np.sqrt(len(merged))) if len(merged) > 1 else 0.0,
+                "comparator_ci95": comp_ci,
+                "paired_mean_difference_DLGPR_minus_comparator": paired_mean,
+                "paired_difference_bootstrap_ci95_low": paired_ci_low,
+                "paired_difference_bootstrap_ci95_high": paired_ci_high,
                 "test": test_name,
                 "p_value": p_value,
-                "effect_size_cliffs_delta": cliffs_delta(merged["return_full"], merged["return_comp"]),
+                "effect_size_paired_rank_biserial": paired_rank_biserial(merged["return_full"], merged["return_comp"]),
+                "effect_size_paired_cohens_dz": paired_cohens_dz(merged["return_full"], merged["return_comp"]),
                 "p95_latency_ms_down": float(np.percentile(comp_lat["e2e_time_ms"], 95)),
                 "p99_latency_ms_down": float(np.percentile(comp_lat["e2e_time_ms"], 99)),
                 "max_latency_ms_down": float(comp_lat["e2e_time_ms"].max()),
@@ -180,6 +196,28 @@ def summarize_timing_profile(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def summarize_compute_accounting(df: pd.DataFrame) -> pd.DataFrame:
+    """Summarize online rollout work and measured CPU work by method."""
+    rows = []
+    group_cols = ["benchmark", "task_name", "method", "timing_mode"]
+    for (benchmark, task, method, timing_mode), g in df.groupby(group_cols):
+        rows.append({
+            "benchmark": benchmark,
+            "task_name": task,
+            "method": method,
+            "timing_mode": timing_mode,
+            "budget_unit": g["budget_unit"].iloc[0] if "budget_unit" in g else "ms",
+            "atomic_eval_rollouts": int(g["atomic_eval_rollouts"].iloc[0]) if "atomic_eval_rollouts" in g else np.nan,
+            "mean_online_rollout_equivalents_per_interval": float(g["total_rollout_equivalents"].mean()) if "total_rollout_equivalents" in g else np.nan,
+            "total_online_rollout_equivalents": int(g["total_rollout_equivalents"].sum()) if "total_rollout_equivalents" in g else np.nan,
+            "mean_charged_loop_budget_used": float(g["loop_time_ms"].mean()),
+            "mean_actual_cpu_loop_wall_ms": float(g["actual_cpu_loop_wall_ms"].mean()) if "actual_cpu_loop_wall_ms" in g else np.nan,
+            "mean_candidates_per_interval": float(g["candidate_count"].mean()) if "candidate_count" in g else np.nan,
+            "accounting_scope": "Online atomic evaluation, RL training, and RL-to-population injection rollouts. Module initialization and final incumbent evaluation are disclosed offline work.",
+        })
+    return pd.DataFrame(rows)
+
+
 def write_environment_table(metadata_path: Path, out_path: Path) -> pd.DataFrame:
     meta = json.loads(metadata_path.read_text(encoding="utf-8-sig"))
     rows = []
@@ -208,6 +246,8 @@ def write_environment_table(metadata_path: Path, out_path: Path) -> pd.DataFrame
             "guard_margin_ms": m.get("guard_margin_ms"),
             "scheduler_ema_lambda": m.get("scheduler_ema_lambda"),
             "timing_mode": m.get("timing_mode"),
+            "budget_unit": m.get("budget_unit", "ms"),
+            "rollout_charge_ms": m.get("rollout_charge_ms"),
             "hardware_id": m.get("hardware_id"),
             "OS": m.get("operating_system"),
             "runtime": m.get("runtime") or f"Python {m.get('python_version')}",
@@ -225,6 +265,7 @@ def summarize_scheduler_baselines(df: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for (task, method), g in final.groupby(["task_name", "method"]):
         lat = df[(df.task_name == task) & (df.method == method)]
+        return_mean, return_std, return_ci = mean_std_ci(g["return"])
         equivalence_notes = {
             "DLGPR-full": "timing-rule alias with strict-delta-max",
             "strict-delta-max": "timing-rule alias with DLGPR-full",
@@ -236,10 +277,10 @@ def summarize_scheduler_baselines(df: pd.DataFrame) -> pd.DataFrame:
             "scheduler": method,
             "equivalence_group": equivalence_notes.get(method, "independent reported label"),
             "independent_baseline_note": "These pairs are behaviorally equivalent under the reported configuration." if method in equivalence_notes else "No duplicate-equivalence warning for this scheduler label.",
-            "return_mean_up": float(g["return"].mean()),
-            "return_std": float(g["return"].std(ddof=1)) if len(g) > 1 else 0.0,
+            "return_mean_up": return_mean,
+            "return_std": return_std,
             "return_median_up": float(g["return"].median()),
-            "return_ci95": float(1.96 * g["return"].std(ddof=1) / np.sqrt(len(g))) if len(g) > 1 else 0.0,
+            "return_ci95": return_ci,
             "win_rate_up": float(g["win"].mean()),
             "p99_latency_ms_down": float(np.percentile(lat["e2e_time_ms"], 99)),
             "loop_overrun_rate_down": float(np.mean(lat["loop_overrun"].astype(bool))),
@@ -283,6 +324,8 @@ def summarize_aggregate_vs_dlgpr(df: pd.DataFrame) -> pd.DataFrame:
             "paired_wins_up": int(np.sum(arr > 0)),
             "paired_losses_down": int(np.sum(arr < 0)),
             "paired_ties": int(np.sum(arr == 0)),
+            "effect_size_paired_rank_biserial_comparator_minus_DLGPR": paired_rank_biserial(arr, np.zeros_like(arr)),
+            "effect_size_paired_cohens_dz_comparator_minus_DLGPR": paired_cohens_dz(arr, np.zeros_like(arr)),
             "tasks_with_positive_mean_delta_up": task_wins,
             "tasks_with_negative_mean_delta_down": task_losses,
             "tasks_with_zero_mean_delta": task_ties,
@@ -350,14 +393,18 @@ def metric_definitions() -> pd.DataFrame:
         {"metric": "actual_cpu_e2e_ms", "direction": "diagnostic; lower is better for deployment", "definition": "Measured budget-critical atomic loop plus the disclosed guard margin; separate from simulated charged-time accounting."},
         {"metric": "wall_clock_interval_ms", "direction": "diagnostic", "definition": "Measured script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric."},
         {"metric": "p_value_holm", "direction": "lower is stronger evidence", "definition": "Holm-Bonferroni adjusted paired-test p-value across the reported comparator family."},
+        {"metric": "return_ci95", "direction": "context", "definition": "Two-sided 95% Student-t confidence-interval half-width for the mean return; used instead of a fixed 1.96 normal approximation for small samples."},
+        {"metric": "effect_size_paired_rank_biserial", "direction": "signed context", "definition": "Matched-pairs rank-biserial correlation aligned with the paired Wilcoxon signed-rank test; positive values favor DLGPR-full in comparator tables."},
+        {"metric": "effect_size_paired_cohens_dz", "direction": "signed context", "definition": "Paired Cohen's dz computed from seed-matched return differences; positive values favor DLGPR-full in comparator tables."},
         {"metric": "atomic_eval_rollouts", "direction": "context", "definition": "Number of evaluation seeds used inside each atomic candidate-scoring step; robust variants set this to K."},
+        {"metric": "total_rollout_equivalents", "direction": "compute-accounting context", "definition": "Online evaluation and RL training rollout count, including RL-to-population injection evaluations; excludes disclosed setup and final incumbent evaluation work."},
     ])
 
 
 def package_claim_limits(df: pd.DataFrame | None = None) -> pd.DataFrame:
     has_external = False
     if df is not None and "benchmark" in df.columns:
-        has_external = bool(df["benchmark"].astype(str).str.contains("gymnasium|external|procgen|microrts|gvgai|open_spiel", case=False, regex=True).any())
+        has_external = bool(df["benchmark"].astype(str).str.contains("gymnasium|minigrid|external|procgen|microrts|gvgai|open_spiel", case=False, regex=True).any())
     return pd.DataFrame([
         {"item": "Self-contained environments", "status": "included", "manuscript_use": "Use for reproducibility and sanity-check evidence; do not claim GVGAI/MicroRTS/Procgen generalization."},
         {"item": "Charged-time accounting", "status": "included", "manuscript_use": "Can support budget-accounting diagnostics when timing_mode is disclosed."},
@@ -370,12 +417,13 @@ def make_figures(df: pd.DataFrame, fig_dir: Path) -> None:
     fig_dir.mkdir(parents=True, exist_ok=True)
     # 1. Latency CDF per method for each task.
     for task, gt in df.groupby("task_name"):
+        unit = gt["budget_unit"].iloc[0] if "budget_unit" in gt else "ms"
         plt.figure(figsize=(8, 5))
         for method, gm in gt.groupby("method"):
             vals = np.sort(gm["e2e_time_ms"].to_numpy(dtype=float))
             y = np.linspace(0, 1, len(vals), endpoint=True)
             plt.plot(vals, y, label=method)
-        plt.xlabel("Per-interval E2E time (ms)")
+        plt.xlabel(f"Per-interval E2E charged amount ({unit})")
         plt.ylabel("Empirical CDF")
         plt.title(f"Latency CDF: {task}")
         plt.legend(fontsize=7)
@@ -388,7 +436,7 @@ def make_figures(df: pd.DataFrame, fig_dir: Path) -> None:
             vals = np.sort(gm["loop_overrun_ms"].to_numpy(dtype=float))
             y = np.linspace(0, 1, len(vals), endpoint=True)
             plt.plot(vals, y, label=method)
-        plt.xlabel("Loop-budget overrun magnitude (ms)")
+        plt.xlabel(f"Loop-budget overrun magnitude ({unit})")
         plt.ylabel("Empirical CDF")
         plt.title(f"Loop overrun CDF: {task}")
         plt.legend(fontsize=7)
@@ -463,5 +511,8 @@ def analyze(log_dir: Path, table_dir: Path, fig_dir: Path) -> Dict[str, Path]:
     timing = summarize_timing_profile(df)
     timing.to_csv(table_dir / "table_timing_profile.csv", index=False)
     outputs["timing_profile"] = table_dir / "table_timing_profile.csv"
+    compute = summarize_compute_accounting(df)
+    compute.to_csv(table_dir / "table_compute_accounting.csv", index=False)
+    outputs["compute_accounting"] = table_dir / "table_compute_accounting.csv"
     make_figures(df, fig_dir)
     return outputs

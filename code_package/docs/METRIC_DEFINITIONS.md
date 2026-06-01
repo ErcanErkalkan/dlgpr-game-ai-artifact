@@ -14,15 +14,21 @@
 | Learning progress | Diagnostic | Nonnegative short-horizon progress proxy for the RL module and distillation updates. |
 | Improvement rate | Diagnostic | Short-horizon improvement divided by charged atomic-step time. |
 | Atomic eval rollouts | Context | Number of evaluation seeds used inside each atomic candidate-scoring step. Robust variants set this to the disclosed evaluation count K; standard variants use the lighter two-rollout proxy. |
+| Online rollout equivalents | Compute-accounting context | Evaluation rollouts, RL training rollouts, and RL-to-GA/PSO injection evaluations charged during online scheduling. Module initialization and final incumbent evaluation are disclosed offline work. |
 | Handshake events | Diagnostic | Count of cross-layer injection/distillation events. |
 | Actual CPU loop wall ms | Lower is better for deployment diagnostics | Measured wall-clock duration of the budget-critical atomic-step loop, excluding offline evaluation/logging. |
 | Actual CPU E2E ms | Lower is better for deployment diagnostics | Measured budget-critical atomic loop plus the disclosed guard margin, logged separately from simulated charged-time accounting. |
 | Wall-clock interval ms | Diagnostic | Script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric. |
 | Holm-adjusted p-value | Lower is stronger evidence | Holm-Bonferroni adjusted paired-test p-value across the reported comparator family. |
+| Return CI95 | Context | Student-t 95% confidence-interval half-width for the mean return. This replaces a fixed 1.96 normal approximation for small samples. |
+| Paired rank-biserial effect | Signed context | Matched-pairs rank-biserial correlation aligned with the paired Wilcoxon test. Positive values favor DLGPR-full in comparator tables. |
+| Paired Cohen's dz | Signed context | Standardized mean of seed-matched return differences. Positive values favor DLGPR-full in comparator tables. |
 
 ## Timing-mode caution
 
 The default `simulated_charged` timing mode is intended to stress the scheduler deterministically. It is not a claim of real engine wall-clock performance. The separate `actual_cpu_raw` timing profile charges measured CPU time without clipping and uses a disclosed 100 ms interval budget. Manuscript text must keep charged-time validation and raw-CPU timing diagnostics separate.
+
+The separate `rollout_normalized` mode is for compute-matched performance comparison. Each online rollout-equivalent consumes one declared unit, including RL training and RL-to-population injection evaluations. It is not a millisecond or engine-latency metric.
 
 
 The 24 ms zero-overrun statement refers only to charged-time accounting in the main validation logs. Raw CPU wall-clock timing is reported separately under the 100 ms timing profile and should not be used as a 24 ms deployment guarantee.
