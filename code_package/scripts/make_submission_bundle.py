@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a zip bundle of logs, tables, figures, and source code."""
+"""Create public and double-anonymized review bundles for the artifact."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,8 +8,10 @@ import zipfile
 SCRIPT_PATH = Path(__file__).resolve()
 CODE_ROOT = SCRIPT_PATH.parents[1]
 RELEASE_ROOT = SCRIPT_PATH.parents[2]
-OUT = RELEASE_ROOT.parent / "dlgpr-game-ai-artifact-v0.5.0.zip"
-INCLUDE = [
+VERSION = (RELEASE_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+OUT = RELEASE_ROOT.parent / f"dlgpr-game-ai-artifact-{VERSION}.zip"
+ANONYMOUS_OUT = RELEASE_ROOT.parent / f"dlgpr-game-ai-anonymous-artifact-{VERSION}.zip"
+PUBLIC_INCLUDE = [
     "README.md",
     "requirements.txt",
     "pyproject.toml",
@@ -19,6 +21,7 @@ INCLUDE = [
     "VERSION",
     "RELEASE_CONSISTENCY.md",
     "RELEASE_CLEAN_AUDIT.md",
+    "ZENODO_NEW_VERSION_UPLOAD.md",
     "Dockerfile",
     "Makefile",
     "code_package/dlgpr",
@@ -32,6 +35,47 @@ INCLUDE = [
     "experiments/tog2026_external_gymnasium",
     "experiments/tog2026_timing_profile",
 ]
+ANONYMOUS_INCLUDE = [
+    "requirements.txt",
+    "pyproject.toml",
+    "LICENSE",
+    "Dockerfile",
+    "Makefile",
+    "code_package/dlgpr",
+    "code_package/scripts",
+    "code_package/tests",
+    "code_package/docs",
+    "code_package/configs",
+    "experiments/SOURCE_OF_TRUTH.md",
+    "experiments/LOG_REPLACEMENT_AUDIT.md",
+    "experiments/tog2026_full_validation",
+    "experiments/tog2026_external_gymnasium",
+    "experiments/tog2026_timing_profile",
+]
+ANONYMOUS_README = """# DLGPR Game AI Artifact
+
+This anonymized review artifact accompanies the Entertainment Computing
+submission. It contains the implementation, tests, metadata-complete logs,
+generated tables, figures, and audit documentation used for the reported
+results.
+
+The archival repository identifier, public source mirror, author metadata, and
+version metadata are intentionally omitted during double-anonymized review.
+
+## Validation
+
+Run from the extracted artifact root:
+
+```bash
+python -m pip install -e .
+python code_package/tests/run_tests.py
+python code_package/scripts/audit_package.py --profile full --out experiments/tog2026_full_validation/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/audit_package.py --profile external --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --out experiments/tog2026_external_gymnasium/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/audit_package.py --profile timing --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --out experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
+```
+
+Expected result: 13 tests pass and all three audit profiles report `PASS`.
+"""
 
 def _is_forbidden(path: Path) -> bool:
     parts = set(path.parts)
@@ -44,8 +88,8 @@ def _is_forbidden(path: Path) -> bool:
     return False
 
 
-with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
-    for item in INCLUDE:
+def _write_items(z: zipfile.ZipFile, include: list[str], anonymous: bool = False) -> None:
+    for item in include:
         p = RELEASE_ROOT / item
         if not p.exists():
             print(f"warning: missing bundle input: {item}")
@@ -57,5 +101,22 @@ with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
         elif p.is_dir():
             for f in p.rglob("*"):
                 if f.is_file() and not _is_forbidden(f):
+                    if anonymous and f.name in {
+                        ".zenodo.json",
+                        "CITATION.cff",
+                        "VERSION",
+                        "RELEASE_CONSISTENCY.md",
+                        "RELEASE_CLEAN_AUDIT.md",
+                    }:
+                        continue
                     z.write(f, f.relative_to(RELEASE_ROOT))
+
+
+with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
+    _write_items(z, PUBLIC_INCLUDE)
 print(OUT)
+
+with zipfile.ZipFile(ANONYMOUS_OUT, "w", zipfile.ZIP_DEFLATED) as z:
+    z.writestr("README.md", ANONYMOUS_README)
+    _write_items(z, ANONYMOUS_INCLUDE, anonymous=True)
+print(ANONYMOUS_OUT)

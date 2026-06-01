@@ -1,6 +1,6 @@
 # Step 4 Experiment Audit
 
-Manuscript: ToG-2026-0045
+Target journal: Entertainment Computing
 
 Status: UPDATED TO 16-METHOD ROBUST SOURCE OF TRUTH
 

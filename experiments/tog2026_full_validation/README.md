@@ -1,4 +1,4 @@
-# ToG-2026-0045 Full Local Validation
+# Entertainment Computing Full Local Validation
 
 This directory stores the official full matched-budget local validation run used by the revised manuscript.
 

@@ -1,4 +1,4 @@
-# ToG-2026-0045 Raw-CPU Timing Profile
+# Entertainment Computing Raw-CPU Timing Profile
 
 This directory stores the raw-CPU timing diagnostic used by the revised manuscript.
 

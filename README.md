@@ -1,13 +1,17 @@
 # DLGPR Game AI Artifact
 
-**Release version:** `v0.5.0`
+**Release version:** `v0.5.1`
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20447919.svg)](https://doi.org/10.5281/zenodo.20447919)
-[![Repository](https://img.shields.io/badge/GitHub-dlgpr--game--ai--artifact-blue?logo=github)](https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.5.0)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20447918.svg)](https://doi.org/10.5281/zenodo.20447918)
+[![Repository](https://img.shields.io/badge/GitHub-dlgpr--game--ai--artifact-blue?logo=github)](https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.5.1)
 
 This repository contains the code, reproducibility scripts, metadata-complete logs, statistical tables, and generated figures for the DLGPR Game AI validation artifact.
 
 The manuscript source and manuscript PDF are intentionally excluded. The public artifact is meant to accompany the manuscript, not to publish the journal submission files.
+
+The `experiments/tog2026_*` directory names are retained as stable historical
+paths so that the generated tables, audit scripts, and archived logs remain
+addressable. They do not identify the current target journal.
 
 ## Contents
 
@@ -130,7 +134,7 @@ The software is released under the MIT License. Citation metadata is provided in
 
 # DLGPR: Charged-Time Budgeted GA-PSO-RL Scheduler for Game AI (Code Package Details)
 
-This repository is a from-scratch, reproducible code package for manuscript ToG-2026-0045 revision work.
+This repository is a from-scratch, reproducible code package for the Entertainment Computing submission.
 It implements a matched-budget experimental framework for a Dynamic Layered GA-PSO-RL (DLGPR) scheduler under per-interval compute budgets. The current release adds robust DLGPR variants that score atomic candidates on the disclosed evaluation-rollout set rather than on a smaller two-seed proxy.
 
 The package is intentionally self-contained: it includes lightweight game-like environments, GA/PSO/RL modules, strict and relaxed budget enforcement, scheduler baselines, ablations, metadata templates, interval logs, result tables, figures, and tests.
@@ -146,7 +150,7 @@ The reviewer decision highlighted several critical issues:
 - unclear metric definitions,
 - weak reproducibility artifacts.
 
-This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.5.0 adds robust candidate acceptance (`robust-DLGPR`) and a near-elite transfer-gated robustness ablation (`robust-near-elite-DLGPR`).
+This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.5.1 packages the robust candidate-acceptance (`robust-DLGPR`) and near-elite transfer-gated (`robust-near-elite-DLGPR`) evidence for the Entertainment Computing submission.
 
 ## Quick start
 
