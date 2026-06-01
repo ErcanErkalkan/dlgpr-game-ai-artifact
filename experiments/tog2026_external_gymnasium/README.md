@@ -1,4 +1,4 @@
-# ToG-2026-0045 External Gymnasium Validation
+# Entertainment Computing External Gymnasium Validation
 
 This directory stores the official matched-budget robust external benchmark extension used by the revised manuscript.
 
