@@ -1,0 +1,19 @@
+metric,direction,definition
+return,higher is better,Mean episode return under the disclosed evaluation seed schedule.
+score,higher is better,Task score; in the self-contained harness it is equal to episode return.
+win_rate,higher is better,Fraction of evaluation episodes ending in a task win.
+steps_to_T,lower is better,"First interval where mean score reaches threshold T, converted by the environment-step cap; -1/blank means not reached."
+p95_latency_ms,lower is better,95th percentile of per-interval end-to-end charged time.
+p99_latency_ms,lower is better,99th percentile of per-interval end-to-end charged time.
+loop_overrun_rate,lower is better,Fraction of intervals where charged loop time exceeds the disclosed loop budget.
+e2e_overrun_rate,lower is better,Fraction of intervals where charged loop time plus guard margin exceeds the gross interval budget.
+handshake_events,diagnostic,Number of executed cross-layer injection/distillation operations.
+actual_cpu_loop_wall_ms,diagnostic; lower is better for deployment,"Measured wall-clock duration of the budget-critical atomic-step loop, excluding offline evaluation/logging."
+actual_cpu_e2e_ms,diagnostic; lower is better for deployment,Measured budget-critical atomic loop plus the disclosed guard margin; separate from simulated charged-time accounting.
+wall_clock_interval_ms,diagnostic,Measured script-level interval duration including offline evaluation and logging; not used as the real-time engine budget metric.
+p_value_holm,lower is stronger evidence,Holm-Bonferroni adjusted paired-test p-value across the reported comparator family.
+return_ci95,context,Two-sided 95% Student-t confidence-interval half-width for the mean return; used instead of a fixed 1.96 normal approximation for small samples.
+effect_size_paired_rank_biserial,signed context,Matched-pairs rank-biserial correlation aligned with the paired Wilcoxon signed-rank test; positive values favor DLGPR-full in comparator tables.
+effect_size_paired_cohens_dz,signed context,Paired Cohen's dz computed from seed-matched return differences; positive values favor DLGPR-full in comparator tables.
+atomic_eval_rollouts,context,Number of evaluation seeds used inside each atomic candidate-scoring step; robust variants set this to K.
+total_rollout_equivalents,compute-accounting context,"Online evaluation and RL training rollout count, including RL-to-population injection evaluations; excludes disclosed setup and final incumbent evaluation work."

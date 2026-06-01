@@ -3,7 +3,7 @@
 The public `v0.5.0` tag and Zenodo record `10.5281/zenodo.20447919` contain the
 older artifact. They remain immutable.
 
-The updated artifact was published on 2026-06-01:
+The `v0.5.1` artifact was published on 2026-06-01:
 
 - GitHub tag: `v0.5.1`
 - GitHub release:
@@ -24,3 +24,16 @@ Zenodo archive, so their checksums match the DOI record.
 For double-anonymized review, upload
 `dlgpr-game-ai-anonymous-artifact-v0.5.1.zip` as supplementary material. It
 omits author metadata, public repository identifiers, and release metadata.
+
+## Pending v0.6.0 publication
+
+Version `v0.6.0` adds rollout-equivalent compute-matched local results,
+MiniGrid Empty-5x5 performance integration, Student-t intervals, and paired
+effect sizes. After the clean bundle is generated:
+
+1. Publish GitHub tag and release `v0.6.0`.
+2. Create a new Zenodo version under concept DOI `10.5281/zenodo.20447918`.
+3. Synchronize `dlgpr-game-ai-artifact-v0.6.0.zip` with the GitHub release and
+   Zenodo record.
+4. Replace the v0.5.1 supplementary bundle with
+   `dlgpr-game-ai-anonymous-artifact-v0.6.0.zip`.

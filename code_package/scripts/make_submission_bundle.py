@@ -34,11 +34,12 @@ PUBLIC_INCLUDE = [
     "experiments/tog2026_full_validation",
     "experiments/tog2026_external_gymnasium",
     "experiments/tog2026_timing_profile",
+    "experiments/ec2026_compute_matched_rollout",
+    "experiments/ec2026_minigrid_performance",
 ]
 ANONYMOUS_INCLUDE = [
     "requirements.txt",
     "pyproject.toml",
-    "LICENSE",
     "Dockerfile",
     "Makefile",
     "code_package/dlgpr",
@@ -51,6 +52,8 @@ ANONYMOUS_INCLUDE = [
     "experiments/tog2026_full_validation",
     "experiments/tog2026_external_gymnasium",
     "experiments/tog2026_timing_profile",
+    "experiments/ec2026_compute_matched_rollout",
+    "experiments/ec2026_minigrid_performance",
 ]
 ANONYMOUS_README = """# DLGPR Game AI Artifact
 
@@ -72,10 +75,15 @@ python code_package/tests/run_tests.py
 python code_package/scripts/audit_package.py --profile full --out experiments/tog2026_full_validation/PACKAGE_AUDIT_REPORT.md
 python code_package/scripts/audit_package.py --profile external --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --out experiments/tog2026_external_gymnasium/PACKAGE_AUDIT_REPORT.md
 python code_package/scripts/audit_package.py --profile timing --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --out experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/audit_package.py --profile compute-matched --log-dir experiments/ec2026_compute_matched_rollout/logs/compute_matched_rollout --table-dir experiments/ec2026_compute_matched_rollout/paper/revised/tables --out experiments/ec2026_compute_matched_rollout/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/audit_package.py --profile minigrid-performance --log-dir experiments/ec2026_minigrid_performance/logs/minigrid_performance --table-dir experiments/ec2026_minigrid_performance/paper/revised/tables --out experiments/ec2026_minigrid_performance/PACKAGE_AUDIT_REPORT.md
 ```
 
-Expected result: 13 tests pass and all three audit profiles report `PASS`.
+Expected result: 17 tests pass and all five audit profiles report `PASS`.
 """
+ANONYMOUS_LICENSE = (RELEASE_ROOT / "LICENSE").read_text(encoding="utf-8").replace(
+    "Ercan Erkalkan", "Anonymous Author(s)"
+)
 
 def _is_forbidden(path: Path) -> bool:
     parts = set(path.parts)
@@ -101,6 +109,8 @@ def _write_items(z: zipfile.ZipFile, include: list[str], anonymous: bool = False
         elif p.is_dir():
             for f in p.rglob("*"):
                 if f.is_file() and not _is_forbidden(f):
+                    if anonymous and f.name == "make_submission_bundle.py":
+                        continue
                     if anonymous and f.name in {
                         ".zenodo.json",
                         "CITATION.cff",
@@ -118,5 +128,6 @@ print(OUT)
 
 with zipfile.ZipFile(ANONYMOUS_OUT, "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("README.md", ANONYMOUS_README)
+    z.writestr("LICENSE", ANONYMOUS_LICENSE)
     _write_items(z, ANONYMOUS_INCLUDE, anonymous=True)
 print(ANONYMOUS_OUT)

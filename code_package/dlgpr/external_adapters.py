@@ -55,16 +55,25 @@ class GymnasiumDiscreteAdapter(BaseGameEnv):
     may not be installed in every review environment.
     """
 
-    def __init__(self, env_factory: Callable[[int], Any], metadata: EnvMetadata, seed: int = 0):
+    def __init__(
+        self,
+        env_factory: Callable[[int], Any],
+        metadata: EnvMetadata,
+        seed: int = 0,
+        obs_formatter: Optional[Callable[[Any], np.ndarray]] = None,
+        action_map: Optional[Tuple[int, ...]] = None,
+    ):
         self.env_factory = env_factory
         self.metadata = metadata
         self.seed_value = seed
+        self.obs_formatter = obs_formatter
+        self.action_map = tuple(action_map) if action_map is not None else None
         self.env = env_factory(seed)
         obs_space = getattr(self.env, "observation_space", None)
         self._discrete_obs_n = getattr(obs_space, "n", None)
         obs, _info = self._reset_raw(seed)
         self.obs_dim = int(self._format_obs(obs).size)
-        self.action_dim = int(getattr(getattr(self.env, "action_space", None), "n"))
+        self.action_dim = len(self.action_map) if self.action_map is not None else int(getattr(getattr(self.env, "action_space", None), "n"))
         self.max_steps = metadata.max_steps
 
     def _reset_raw(self, seed: Optional[int] = None):
@@ -80,7 +89,8 @@ class GymnasiumDiscreteAdapter(BaseGameEnv):
         return self._format_obs(obs)
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, Dict[str, Any]]:
-        out = self.env.step(int(action))
+        raw_action = self.action_map[int(action)] if self.action_map is not None else int(action)
+        out = self.env.step(raw_action)
         if len(out) == 5:
             obs, reward, terminated, truncated, info = out
             done = bool(terminated or truncated)
@@ -92,6 +102,8 @@ class GymnasiumDiscreteAdapter(BaseGameEnv):
         return self._format_obs(obs), float(reward), bool(done), info
 
     def _format_obs(self, obs: Any) -> np.ndarray:
+        if self.obs_formatter is not None:
+            return np.asarray(self.obs_formatter(obs), dtype=np.float64).reshape(-1)
         if self._discrete_obs_n is not None:
             out = np.zeros(int(self._discrete_obs_n), dtype=np.float64)
             out[int(obs)] = 1.0
@@ -115,7 +127,40 @@ class GymnasiumDiscreteAdapter(BaseGameEnv):
         return arr
 
     def clone(self, seed: Optional[int] = None) -> "GymnasiumDiscreteAdapter":
-        return GymnasiumDiscreteAdapter(self.env_factory, self.metadata, self.seed_value if seed is None else seed)
+        return GymnasiumDiscreteAdapter(
+            self.env_factory,
+            self.metadata,
+            self.seed_value if seed is None else seed,
+            obs_formatter=self.obs_formatter,
+            action_map=self.action_map,
+        )
+
+
+def minigrid_fully_observable_goal_features(obs: Any) -> np.ndarray:
+    """Extract a compact, disclosed MiniGrid Empty-task feature vector.
+
+    The FullyObsWrapper image encodes the agent and goal cells explicitly. This
+    helper keeps the controller lightweight while avoiding an uninformative raw
+    flattening of the symbolic grid for the MiniGrid Empty performance run.
+    """
+    from minigrid.core.constants import OBJECT_TO_IDX
+
+    image = np.asarray(obs["image"])
+    objects = image[..., 0]
+    agent = np.argwhere(objects == OBJECT_TO_IDX["agent"])
+    goal = np.argwhere(objects == OBJECT_TO_IDX["goal"])
+    if agent.size == 0:
+        raise ValueError("Fully observable MiniGrid observation must contain the agent cell")
+    agent_xy = agent[0].astype(np.float64)
+    # At successful termination the agent occupies and replaces the encoded
+    # goal cell in the compact grid representation.
+    goal_xy = (goal[0] if goal.size else agent[0]).astype(np.float64)
+    scale = np.maximum(np.asarray(objects.shape, dtype=np.float64) - 1.0, 1.0)
+    direction = int(obs.get("direction", 0))
+    direction_onehot = np.zeros(4, dtype=np.float64)
+    direction_onehot[direction % 4] = 1.0
+    delta = (goal_xy - agent_xy) / scale
+    return np.concatenate([agent_xy / scale, goal_xy / scale, delta, direction_onehot, [1.0]])
 
 
 def validate_adapter_metadata(metadata: EnvMetadata, evaluation_cadence_defined: bool = True) -> AdapterChecklist:

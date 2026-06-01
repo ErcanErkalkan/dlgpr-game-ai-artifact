@@ -1,9 +1,9 @@
 # DLGPR Game AI Artifact
 
-**Release version:** `v0.5.1`
+**Release version:** `v0.6.0`
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20447918.svg)](https://doi.org/10.5281/zenodo.20447918)
-[![Repository](https://img.shields.io/badge/GitHub-dlgpr--game--ai--artifact-blue?logo=github)](https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.5.1)
+[![Repository](https://img.shields.io/badge/GitHub-dlgpr--game--ai--artifact-blue?logo=github)](https://github.com/ErcanErkalkan/dlgpr-game-ai-artifact/tree/v0.6.0)
 
 This repository contains the code, reproducibility scripts, metadata-complete logs, statistical tables, and generated figures for the DLGPR Game AI validation artifact.
 
@@ -19,6 +19,8 @@ addressable. They do not identify the current target journal.
 - `experiments/tog2026_full_validation/`: the full local validation used by the manuscript, including 19,200 interval-log rows, 150,297 atomic-step rows, 16 logged scheduler labels, task metadata, generated tables, and generated figures. Two logged label pairs are behaviorally equivalent diagnostics rather than independent methods.
 - `experiments/tog2026_external_gymnasium/`: a matched-budget robust external benchmark extension on Gymnasium tasks, including 3,840 interval-log rows, 29,698 atomic-step rows, and 8 logged scheduler labels. The `fixed-split` / `round-robin` pair is an equivalent static-allocation diagnostic in the reported configuration.
 - `experiments/tog2026_timing_profile/`: raw-CPU timing diagnostics for strict and relaxed do-not-start rules, including 1,500 interval-log rows and 16,158 atomic-step rows.
+- `experiments/ec2026_compute_matched_rollout/`: rollout-equivalent compute-matched local performance comparison, including 9,600 interval-log rows and 134,027 atomic-step rows. Evaluation, RL-training, and RL-to-population injection rollouts are charged to the online scheduler account.
+- `experiments/ec2026_minigrid_performance/`: rollout-equivalent performance validation on the recognized MiniGrid `Empty-5x5` task, including 960 interval-log rows and 13,543 atomic-step rows. This is a bounded fully observable adapter experiment, not a broad MiniGrid-suite claim.
 
 Generated directories named `paper/revised` contain artifact tables, figures, and manuscript-insert snippets. They are not the manuscript source and do not contain the excluded `Paper/` submission directory.
 
@@ -71,6 +73,8 @@ python code_package/tests/run_tests.py
 python code_package/scripts/audit_package.py --profile full --out experiments/tog2026_full_validation/PACKAGE_AUDIT_REPORT.md
 python code_package/scripts/audit_package.py --profile external --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --out experiments/tog2026_external_gymnasium/PACKAGE_AUDIT_REPORT.md
 python code_package/scripts/audit_package.py --profile timing --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --out experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/audit_package.py --profile compute-matched --log-dir experiments/ec2026_compute_matched_rollout/logs/compute_matched_rollout --table-dir experiments/ec2026_compute_matched_rollout/paper/revised/tables --out experiments/ec2026_compute_matched_rollout/PACKAGE_AUDIT_REPORT.md
+python code_package/scripts/audit_package.py --profile minigrid-performance --log-dir experiments/ec2026_minigrid_performance/logs/minigrid_performance --table-dir experiments/ec2026_minigrid_performance/paper/revised/tables --out experiments/ec2026_minigrid_performance/PACKAGE_AUDIT_REPORT.md
 ```
 
 Equivalently:
@@ -82,7 +86,7 @@ make audit
 
 Expected status:
 
-- 13 tests pass.
+- 17 tests pass.
 - The official experiment directories now contain the robust source-of-truth logs; see `experiments/LOG_REPLACEMENT_AUDIT.md`.
 - Strict `delta_max` timing has zero charged-time loop overruns in the full validation logs. This is a charged-time compliance statement, not a raw CPU wall-clock guarantee.
 
@@ -96,6 +100,8 @@ This artifact deliberately separates two timing notions:
 
 Therefore, the manuscript-consistent claim is **zero strict-rule charged-time overruns under the disclosed 24 ms charged-time budget**, plus a separate raw-CPU diagnostic. Do not cite the 24 ms charged-time result as raw wall-clock performance in a deployed engine.
 
+The release also contains a separate `rollout_normalized` performance layer. In that mode, each online evaluation rollout, RL training rollout, and RL-to-GA/PSO injection evaluation consumes one rollout-equivalent budget unit. This layer is the compute-matched basis for robust-versus-standard performance comparisons; it is not a millisecond or engine-latency claim.
+
 ## Manuscript Consistency
 
 The manuscript reports the full local validation in `experiments/tog2026_full_validation`, not the smoke-test outputs generated by quick runs. The full validation contains:
@@ -108,6 +114,8 @@ The manuscript reports the full local validation in `experiments/tog2026_full_va
 - Relaxed `delta_min` overrun rates of 0.5825 to 0.6275, matching the manuscript's 58.25--62.75% range.
 - A separate Gymnasium extension reports named external benchmarks only; it uses the frozen 8-method robust external set and is not presented as GVGAI/MicroRTS/Procgen evidence.
 - A separate raw-CPU timing profile uses a calibrated 100 ms interval budget and reports measured Python CPU behavior across the profiled tasks. It is diagnostic only and is not the 24 ms charged-time compliance claim.
+- A separate rollout-equivalent local comparison charges online rollout work directly and reports method-specific rollout consumption. It is the appropriate comparison when robust methods use 5 evaluation rollouts and standard methods use 2.
+- A separate MiniGrid `Empty-5x5` performance run uses `FullyObsWrapper`, disclosed goal-relative features, and the task-relevant `left/right/forward` action subset. It demonstrates bounded benchmark integration, not broad benchmark dominance.
 
 The official row counts are fixed as follows:
 
@@ -150,7 +158,7 @@ The reviewer decision highlighted several critical issues:
 - unclear metric definitions,
 - weak reproducibility artifacts.
 
-This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.5.1 packages the robust candidate-acceptance (`robust-DLGPR`) and near-elite transfer-gated (`robust-near-elite-DLGPR`) evidence for the Entertainment Computing submission.
+This package addresses those issues by forcing every experiment to emit environment disclosure metadata and matched-budget logs. Version 0.6.0 adds rollout-equivalent compute matching, paired small-sample statistics, and a bounded MiniGrid `Empty-5x5` performance integration for the Entertainment Computing submission.
 
 ## Quick start
 
@@ -169,6 +177,8 @@ External and raw-CPU timing artifacts are stored at:
 
 - `experiments/tog2026_external_gymnasium/logs/external_validation`
 - `experiments/tog2026_timing_profile/logs/timing_profile`
+- `experiments/ec2026_compute_matched_rollout/logs/compute_matched_rollout`
+- `experiments/ec2026_minigrid_performance/logs/minigrid_performance`
 
 ## Full run
 
@@ -186,6 +196,10 @@ python code_package/scripts/run_external_validation.py --full
 python code_package/scripts/analyze_results.py --log-dir experiments/tog2026_external_gymnasium/logs/external_validation --table-dir experiments/tog2026_external_gymnasium/paper/revised/tables --fig-dir experiments/tog2026_external_gymnasium/paper/revised/figures
 python code_package/scripts/run_timing_profile.py --full
 python code_package/scripts/analyze_results.py --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --fig-dir experiments/tog2026_timing_profile/paper/revised/figures
+python code_package/scripts/run_compute_matched_validation.py --full --basis rollout
+python code_package/scripts/analyze_results.py --log-dir experiments/ec2026_compute_matched_rollout/logs/compute_matched_rollout --table-dir experiments/ec2026_compute_matched_rollout/paper/revised/tables --fig-dir experiments/ec2026_compute_matched_rollout/paper/revised/figures
+python code_package/scripts/run_minigrid_performance.py --full
+python code_package/scripts/analyze_results.py --log-dir experiments/ec2026_minigrid_performance/logs/minigrid_performance --table-dir experiments/ec2026_minigrid_performance/paper/revised/tables --fig-dir experiments/ec2026_minigrid_performance/paper/revised/figures
 ```
 
 The manuscript-consistent external run covers Gymnasium FrozenLake, deterministic FrozenLake, CliffWalking, and Blackjack with the frozen 8-method robust external set: `robust-DLGPR`, `robust-near-elite-DLGPR`, `DLGPR-full`, `fixed-split`, `round-robin`, `greedy-improvement`, `no-non-starvation`, and `no-handshake`. The full default external run is therefore `4 tasks x 10 seeds x 12 intervals x 8 methods = 3,840 interval rows`; its precomputed atomic-step log has 29,698 rows. The optional MiniGrid adapter is available via `--include-minigrid`; adding MiniGrid changes the row count and is not the manuscript-consistent external performance run.
@@ -214,7 +228,7 @@ Implemented methods:
 - strict do-not-start variant
 - relaxed do-not-start variant
 
-The robust variants use `atomic_eval_rollouts = K` for candidate scoring. The standard DLGPR and baseline methods keep the lighter two-rollout atomic proxy, so tables must disclose `atomic_eval_rollouts` whenever robust and non-robust methods are compared.
+The robust variants use `atomic_eval_rollouts = K` for candidate scoring. The standard DLGPR and baseline methods keep the lighter two-rollout atomic proxy. Simulated charged-time tables must disclose that mismatch. Robust-versus-standard performance claims should use the separate `rollout_normalized` experiment, where consumed rollout work is charged explicitly.
 
 ## Important claim boundary
 

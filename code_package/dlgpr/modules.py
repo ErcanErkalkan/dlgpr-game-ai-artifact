@@ -20,6 +20,8 @@ class AtomicResult:
     win_rate: float
     charged_ms: float
     cpu_ms: float
+    evaluation_rollouts: int = 0
+    training_rollouts: int = 0
     learning_progress: float = 0.0
     diversity: float = 0.0
     improvement_rate: float = 0.0
@@ -99,7 +101,11 @@ class GAModule(BaseModule):
         if replaced:
             self.population[worst] = cand.copy()
             self.fitness[worst] = metrics["return"]
-        return {"return": float(metrics["return"]), "replaced": float(replaced)}
+        return {
+            "return": float(metrics["return"]),
+            "replaced": float(replaced),
+            "evaluation_rollouts": float(self.atomic_eval_rollouts),
+        }
 
     def atomic_step(self, best_value: float) -> AtomicResult:
         t0 = time.perf_counter()
@@ -118,6 +124,7 @@ class GAModule(BaseModule):
         charged = charged_duration_ms(self.rng, self.delta_min_ms, self.delta_max_ms, module_bias=1.0)
         gain = max(0.0, metrics["return"] - best_value)
         return AtomicResult("GA", child, metrics["return"], metrics["score"], metrics["win_rate"], charged, cpu_ms,
+                            evaluation_rollouts=self.atomic_eval_rollouts,
                             diversity=self.diversity(), improvement_rate=gain / max(charged, 1e-9))
 
 
@@ -175,6 +182,7 @@ class CEMGAModule(GAModule):
         charged = charged_duration_ms(self.rng, self.delta_min_ms, self.delta_max_ms, module_bias=1.0)
         gain = max(0.0, metrics["return"] - best_value)
         return AtomicResult("GA", cand, metrics["return"], metrics["score"], metrics["win_rate"], charged, cpu_ms,
+                            evaluation_rollouts=self.atomic_eval_rollouts,
                             diversity=self.diversity(), improvement_rate=gain / max(charged, 1e-9),
                             note="cem_ga_atomic_step")
 
@@ -218,7 +226,11 @@ class PSOModule(BaseModule):
             self.positions[worst] = cand.copy()
             self.pbest[worst] = cand.copy()
             self.pbest_value[worst] = metrics["return"]
-        return {"return": float(metrics["return"]), "replaced": float(replaced)}
+        return {
+            "return": float(metrics["return"]),
+            "replaced": float(replaced),
+            "evaluation_rollouts": float(self.atomic_eval_rollouts),
+        }
 
     def atomic_step(self, best_value: float) -> AtomicResult:
         t0 = time.perf_counter()
@@ -238,6 +250,7 @@ class PSOModule(BaseModule):
         charged = charged_duration_ms(self.rng, self.delta_min_ms, self.delta_max_ms, module_bias=0.9)
         gain = max(0.0, metrics["return"] - best_value)
         return AtomicResult("PSO", self.positions[i].copy(), metrics["return"], metrics["score"], metrics["win_rate"], charged, cpu_ms,
+                            evaluation_rollouts=self.atomic_eval_rollouts,
                             improvement_rate=gain / max(charged, 1e-9))
 
 
@@ -316,4 +329,5 @@ class RLModule(BaseModule):
         charged = charged_duration_ms(self.rng, self.delta_min_ms, self.delta_max_ms, module_bias=1.1)
         gain = max(0.0, metrics["return"] - best_value)
         return AtomicResult("RL", self.theta.copy(), metrics["return"], metrics["score"], metrics["win_rate"], charged, cpu_ms,
+                            evaluation_rollouts=self.atomic_eval_rollouts, training_rollouts=1,
                             learning_progress=lp / max(charged, 1e-9), improvement_rate=gain / max(charged, 1e-9))

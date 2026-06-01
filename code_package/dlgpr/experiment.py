@@ -49,7 +49,8 @@ class ExperimentConfig:
     step_cap_per_interval: int = 32
     threshold_T: float = 0.50
     deterministic_eval: bool = True
-    timing_mode: str = "simulated_charged"  # simulated_charged, actual_cpu_clipped, or actual_cpu_raw
+    timing_mode: str = "simulated_charged"  # simulated_charged, rollout_normalized, actual_cpu_clipped, or actual_cpu_raw
+    rollout_charge_ms: float = 1.0
     scheduler_ema_lambda: float = 0.75
 
     @property
@@ -82,7 +83,8 @@ INTERVAL_FIELDS = [
     "B_tau_ms", "allowed_ms", "guard_margin_ms", "delta_min_ms", "delta_max_ms", "do_not_start_rule", "scheduler_ema_lambda",
     "loop_time_ms", "e2e_time_ms", "actual_cpu_loop_wall_ms", "actual_cpu_e2e_ms", "wall_clock_interval_ms",
     "total_atomic_cpu_ms", "actual_cpu_loop_overrun", "actual_cpu_e2e_overrun", "actual_cpu_e2e_overrun_ms",
-    "timing_mode", "selected_module", "atomic_step_duration_ms",
+    "timing_mode", "budget_unit", "rollout_charge_ms", "selected_module", "atomic_step_duration_ms",
+    "total_rollout_equivalents", "last_step_rollout_equivalents",
     "num_ga_steps", "num_pso_steps", "num_rl_steps", "candidate_count", "evaluated_candidate_count",
     "score", "return", "win", "threshold_T", "steps_to_threshold", "evaluation_cadence",
     "atomic_eval_rollouts",
@@ -94,7 +96,9 @@ INTERVAL_FIELDS = [
 
 ATOMIC_FIELDS = [
     "run_id", "seed", "method", "task_name", "interval", "atomic_index", "module", "charged_ms", "cpu_ms", "value", "score", "win_rate",
-    "improvement_rate", "diversity", "learning_progress", "remaining_before_ms", "remaining_after_ms", "do_not_start_rule", "handshake_events", "note",
+    "improvement_rate", "diversity", "learning_progress", "evaluation_rollouts", "training_rollouts",
+    "handoff_evaluation_rollouts", "rollout_equivalents", "remaining_before_ms", "remaining_after_ms",
+    "do_not_start_rule", "handshake_events", "note",
 ]
 
 
@@ -257,7 +261,10 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
     near_elite_handoff = method in ("near-elite-DLGPR", "near-elite-tight-DLGPR", "near-elite-wide-DLGPR", "near-elite-CEM-DLGPR", "robust-near-elite-DLGPR", "robust-near-full-DLGPR")
 
     adaptive_threshold = method in ("RAPID-DLGPR", "RAPID-racing-DLGPR")
-    if adaptive_threshold:
+    if cfg.timing_mode == "rollout_normalized":
+        rule = "strict_rollout_equivalent_max"
+        threshold = cfg.delta_max_ms
+    elif adaptive_threshold:
         rule = "risk_adaptive_module_threshold"
         threshold = cfg.delta_max_ms
     elif method in ("strict-delta-max", "DLGPR-full", "no-diversity", "no-learning-progress", "no-ucb", "no-non-starvation", "no-handshake", "racing-DLGPR", "thompson-DLGPR", "windowed-DLGPR", "SAGE-DLGPR", "SAGE-fastprobe-DLGPR", "gated-DLGPR", "lean-DLGPR", "adaptive-gated-DLGPR", "transfer-adaptive-DLGPR", "near-elite-DLGPR", "near-elite-tight-DLGPR", "near-elite-wide-DLGPR", "CEM-DLGPR", "near-elite-CEM-DLGPR", "meta-gated-DLGPR", "robust-DLGPR", "robust-near-elite-DLGPR", "robust-no-non-starvation", "robust-no-handshake", "robust-near-full-DLGPR"):
@@ -308,11 +315,26 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
         last_imp = 0.0
         atomic_idx = 0
         interval_handshake_events = 0
+        total_rollout_equivalents = 0
+        last_step_rollout_equivalents = 0
         total_atomic_cpu_ms = 0.0
         actual_loop_wall_start = time.perf_counter()
         selected_required_budget_ms = 0.0
 
+        def module_rollout_equivalent_max(module_name: str) -> int:
+            module = mods[module_name]
+            cost = int(getattr(module, "atomic_eval_rollouts", 0))
+            if module_name == "RL":
+                cost += 1
+                if handshake_enabled:
+                    for target in ("GA", "PSO"):
+                        if target in mods:
+                            cost += int(getattr(mods[target], "atomic_eval_rollouts", 0))
+            return cost
+
         def module_required_budget(module_name: str) -> float:
+            if cfg.timing_mode == "rollout_normalized":
+                return float(module_rollout_equivalent_max(module_name) * cfg.rollout_charge_ms)
             if adaptive_threshold:
                 return scheduler.required_budget(module_name, cfg.delta_min_ms, cfg.delta_max_ms)
             return float(threshold)
@@ -336,6 +358,7 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
             result: AtomicResult = mods[selected_module].atomic_step(best_value)
 
             step_handshake_events = 0
+            step_handoff_evaluation_rollouts = 0
             effective_handshake_enabled = handshake_enabled
             effective_selective_handoff = selective_handoff
             effective_near_elite_handoff = near_elite_handoff
@@ -360,11 +383,13 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
                     if "GA" in mods and hasattr(mods["GA"], "inject_candidate"):
                         info = mods["GA"].inject_candidate(result.theta)
                         handoff_success += float(info.get("replaced", 0.0))
+                        step_handoff_evaluation_rollouts += int(info.get("evaluation_rollouts", 0.0))
                         handoff_attempts += 1
                         step_handshake_events += 1
                     if "PSO" in mods and hasattr(mods["PSO"], "inject_candidate"):
                         info = mods["PSO"].inject_candidate(result.theta)
                         handoff_success += float(info.get("replaced", 0.0))
+                        step_handoff_evaluation_rollouts += int(info.get("evaluation_rollouts", 0.0))
                         handoff_attempts += 1
                         step_handshake_events += 1
                 elif selected_module in ("GA", "PSO") and "RL" in mods and hasattr(mods["RL"], "distill_toward"):
@@ -386,13 +411,20 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
             # The measured CPU duration is still logged separately. Profiling
             # runs can charge the full selected step, including cross-layer
             # handoff, either after clipping to the declared atomic-step contract
-            # or directly as raw CPU duration.
+            # or directly as raw CPU duration. Rollout-normalized runs instead
+            # charge every evaluation and training rollout as one declared
+            # rollout-equivalent unit, including RL-to-population injection.
             full_step_cpu_ms = (time.perf_counter() - atomic_wall_start) * 1000.0
             result.cpu_ms = full_step_cpu_ms
+            module_reported_charge_ms = result.charged_ms
+            step_rollout_equivalents = int(result.evaluation_rollouts + result.training_rollouts + step_handoff_evaluation_rollouts)
             if cfg.timing_mode == "actual_cpu_clipped":
                 result.charged_ms = float(np.clip(full_step_cpu_ms, cfg.delta_min_ms, cfg.delta_max_ms))
             elif cfg.timing_mode == "actual_cpu_raw":
                 result.charged_ms = float(full_step_cpu_ms)
+            elif cfg.timing_mode == "rollout_normalized":
+                result.charged_ms = float(step_rollout_equivalents * cfg.rollout_charge_ms)
+            result.learning_progress *= module_reported_charge_ms / max(result.charged_ms, 1e-9)
             result.improvement_rate = max(0.0, result.value - best_value) / max(result.charged_ms, 1e-9)
 
             after = remaining - result.charged_ms
@@ -401,6 +433,7 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
             total_atomic_cpu_ms += result.cpu_ms
             interval_counts[selected_module] = interval_counts.get(selected_module, 0) + 1
             interval_handshake_events += step_handshake_events
+            total_rollout_equivalents += step_rollout_equivalents
             candidates.append(result)
             scheduler.update(selected_module, result.improvement_rate, result.diversity, result.learning_progress)
             scheduler.update_timing(selected_module, result.charged_ms, result.cpu_ms)
@@ -408,6 +441,7 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
                 best_value = result.value
                 best_theta = result.theta.copy()
             last_atomic_ms = result.charged_ms
+            last_step_rollout_equivalents = step_rollout_equivalents
             last_div = result.diversity
             last_lp = result.learning_progress
             last_imp = result.improvement_rate
@@ -416,6 +450,9 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
                 "atomic_index": atomic_idx, "module": result.module, "charged_ms": result.charged_ms, "cpu_ms": result.cpu_ms,
                 "value": result.value, "score": result.score, "win_rate": result.win_rate, "improvement_rate": result.improvement_rate,
                 "diversity": result.diversity, "learning_progress": result.learning_progress,
+                "evaluation_rollouts": result.evaluation_rollouts, "training_rollouts": result.training_rollouts,
+                "handoff_evaluation_rollouts": step_handoff_evaluation_rollouts,
+                "rollout_equivalents": step_rollout_equivalents,
                 "remaining_before_ms": before, "remaining_after_ms": after, "do_not_start_rule": rule,
                 "handshake_events": step_handshake_events, "note": result.note,
             })
@@ -441,7 +478,11 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
         e2e_ms = loop_time + cfg.guard_margin_ms
         e2e_history.append(e2e_ms)
         idx = scheduler.index_values()
-        required = scheduler.threshold_snapshot(cfg.delta_min_ms, cfg.delta_max_ms)
+        if cfg.timing_mode == "rollout_normalized":
+            required = {m: module_required_budget(m) for m in active_modules}
+        else:
+            required = scheduler.threshold_snapshot(cfg.delta_min_ms, cfg.delta_max_ms)
+        budget_unit = "rollout-equivalent unit" if cfg.timing_mode == "rollout_normalized" else "ms"
         interval_logs.append({
             "run_id": run_id, "git_commit": commit, "timestamp": timestamp, "seed": seed, "method": method,
             "benchmark": env0.metadata.benchmark_family, "environment_name": env0.metadata.environment_name,
@@ -455,8 +496,11 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
             "actual_cpu_loop_overrun": bool(actual_cpu_loop_wall_ms > cfg.allowed_ms),
             "actual_cpu_e2e_overrun": bool(_actual_cpu_e2e_ms > cfg.B_tau_ms),
             "actual_cpu_e2e_overrun_ms": max(0.0, _actual_cpu_e2e_ms - cfg.B_tau_ms),
-            "timing_mode": cfg.timing_mode, "selected_module": selected_module,
+            "timing_mode": cfg.timing_mode, "budget_unit": budget_unit, "rollout_charge_ms": cfg.rollout_charge_ms,
+            "selected_module": selected_module,
             "atomic_step_duration_ms": last_atomic_ms, "num_ga_steps": interval_counts.get("GA", 0),
+            "total_rollout_equivalents": total_rollout_equivalents,
+            "last_step_rollout_equivalents": last_step_rollout_equivalents,
             "num_pso_steps": interval_counts.get("PSO", 0), "num_rl_steps": interval_counts.get("RL", 0),
             "candidate_count": len(candidates), "evaluated_candidate_count": len(candidates), "score": eval_metrics["score"],
             "return": eval_metrics["return"], "win": eval_metrics["win_rate"], "threshold_T": cfg.threshold_T,
@@ -491,7 +535,9 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
         "runtime": f"Python {platform.python_version()}",
         "library_versions": library_versions(),
         "B_tau_ms": cfg.B_tau_ms,
+        "B_tau_budget_units": cfg.B_tau_ms,
         "allowed_ms": cfg.allowed_ms,
+        "allowed_budget_units": cfg.allowed_ms,
         "delta_min_ms": cfg.delta_min_ms,
         "delta_max_ms": cfg.delta_max_ms,
         "guard_margin_ms": cfg.guard_margin_ms,
@@ -499,9 +545,12 @@ def run_one(cfg: ExperimentConfig, method: str, task: str, seed: int, output_dir
         "evaluation_cadence": 1,
         "atomic_eval_rollouts": atomic_eval_rollouts,
         "timing_mode": cfg.timing_mode,
+        "budget_unit": "rollout-equivalent unit" if cfg.timing_mode == "rollout_normalized" else "ms",
+        "rollout_charge_ms": cfg.rollout_charge_ms,
         "scheduler_ema_lambda": cfg.scheduler_ema_lambda,
         "risk_adaptive_scheduler": "RAPID-DLGPR and RAPID-racing-DLGPR learn module-specific do-not-start thresholds from charged-duration histories; these variants are bounded-risk diagnostics and are reported separately from strict_delta_max theorem validation.",
-        "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
+        "timing_mode_definition": "simulated_charged uses deterministic charged durations for scheduler stress tests; rollout_normalized charges each evaluation or training rollout, including RL-to-population injection evaluations, as rollout_charge_ms declared rollout-equivalent units; actual_cpu_clipped charges measured CPU time clipped to the declared atomic-step bounds; actual_cpu_raw charges measured CPU time without clipping for profiling diagnostics. actual_cpu_e2e_ms is the measured budget-critical atomic loop plus guard margin; wall_clock_interval_ms additionally includes offline evaluation/logging overhead.",
+        "rollout_accounting_scope": "Atomic-step evaluation rollouts, RL training rollouts, and RL-to-GA/PSO injection evaluations are charged during rollout_normalized runs. One-rollout GA/PSO memory initialization and final per-interval incumbent evaluation are disclosed offline setup/evaluation work outside the online scheduler account.",
         "cross_layer_handoff": "When enabled, RL candidates are injected into GA/PSO elite memories and GA/PSO teachers distill RL parameters within the selected atomic-step charge.",
     })
     return interval_logs, atomic_logs, metadata

@@ -61,11 +61,19 @@ CORE_INTERVAL_COLUMNS = [
 ]
 
 FULL_ONLY_INTERVAL_COLUMNS = ["atomic_eval_rollouts"]
+ROLLOUT_NORMALIZED_INTERVAL_COLUMNS = [
+    "budget_unit", "rollout_charge_ms", "total_rollout_equivalents",
+    "last_step_rollout_equivalents",
+]
 
 REQUIRED_ATOMIC_COLUMNS = [
     "run_id", "seed", "method", "task_name", "interval", "atomic_index", "module",
     "charged_ms", "cpu_ms", "score", "improvement_rate", "diversity",
     "learning_progress", "remaining_before_ms", "remaining_after_ms", "do_not_start_rule",
+]
+ROLLOUT_NORMALIZED_ATOMIC_COLUMNS = [
+    "evaluation_rollouts", "training_rollouts", "handoff_evaluation_rollouts",
+    "rollout_equivalents",
 ]
 
 FULL_METHODS = {
@@ -81,11 +89,17 @@ EXTERNAL_METHODS = {
 }
 
 TIMING_METHODS = {"DLGPR-full", "strict-delta-max", "relaxed-delta-min"}
+COMPUTE_MATCHED_METHODS = {
+    "robust-DLGPR", "robust-near-elite-DLGPR", "DLGPR-full", "GA-only",
+    "PSO-only", "RL-only", "fixed-split", "greedy-improvement",
+}
 
 EXPECTED_COUNTS = {
     "full": {"interval_rows": 19200, "atomic_rows": 150297, "methods": FULL_METHODS},
     "external": {"interval_rows": 3840, "atomic_rows": 29698, "methods": EXTERNAL_METHODS},
     "timing": {"interval_rows": 1500, "atomic_rows": 16158, "methods": TIMING_METHODS},
+    "compute-matched": {"interval_rows": 9600, "atomic_rows": 134027, "methods": COMPUTE_MATCHED_METHODS},
+    "minigrid-performance": {"interval_rows": 960, "atomic_rows": 13543, "methods": COMPUTE_MATCHED_METHODS},
 }
 
 REQUIRED_META = [
@@ -111,7 +125,9 @@ TABLE_CHECKS_COMMON = {
     "table_statistical_tests.csv": [
         "DLGPR_mean", "DLGPR_std", "DLGPR_median", "DLGPR_ci95",
         "comparator_mean", "comparator_std", "comparator_median", "comparator_ci95",
-        "p_value", "p_value_holm", "effect_size_cliffs_delta",
+        "p_value", "p_value_holm", "paired_mean_difference_DLGPR_minus_comparator",
+        "paired_difference_bootstrap_ci95_low", "paired_difference_bootstrap_ci95_high",
+        "effect_size_paired_rank_biserial", "effect_size_paired_cohens_dz",
     ],
     "table_timing_profile.csv": [
         "charged_e2e_p99_ms_down", "actual_cpu_e2e_p99_ms_down",
@@ -120,6 +136,10 @@ TABLE_CHECKS_COMMON = {
     "table_claim_limits.csv": ["item", "status", "manuscript_use"],
     "table_environment_metadata.csv": ["task_name"],
     "table_metric_definitions.csv": ["metric", "direction", "definition"],
+    "table_compute_accounting.csv": [
+        "timing_mode", "budget_unit", "atomic_eval_rollouts",
+        "mean_online_rollout_equivalents_per_interval", "mean_actual_cpu_loop_wall_ms",
+    ],
 }
 
 TABLE_CHECKS_FULL_ONLY = {
@@ -155,6 +175,10 @@ def detect_profile(df: pd.DataFrame, log_dir: Path, explicit: str | None = None)
     log_text = str(log_dir).lower()
     if "timing_profile" in log_text or methods == TIMING_METHODS:
         return "timing"
+    if "minigrid_performance" in log_text:
+        return "minigrid-performance"
+    if "compute_matched" in log_text:
+        return "compute-matched"
     if "external" in log_text or methods == EXTERNAL_METHODS:
         return "external"
     return "full"
@@ -211,6 +235,8 @@ def audit(log_dir: Path, table_dir: Path, profile_arg: str | None = "auto") -> t
         required_cols = list(CORE_INTERVAL_COLUMNS)
         if profile == "full":
             required_cols += FULL_ONLY_INTERVAL_COLUMNS
+        if profile in {"compute-matched", "minigrid-performance"}:
+            required_cols += ROLLOUT_NORMALIZED_INTERVAL_COLUMNS
         missing_cols = [c for c in required_cols if c not in df.columns]
         lines.append(f"Missing interval columns: {missing_cols if missing_cols else 'none'}")
         ok = ok and not missing_cols
@@ -245,6 +271,8 @@ def audit(log_dir: Path, table_dir: Path, profile_arg: str | None = "auto") -> t
         lines.append("")
         lines.append(f"## Atomic-step log rows: {len(atomic_df):,}")
         missing_atomic_cols = [c for c in REQUIRED_ATOMIC_COLUMNS if c not in atomic_df.columns]
+        if profile in {"compute-matched", "minigrid-performance"}:
+            missing_atomic_cols += [c for c in ROLLOUT_NORMALIZED_ATOMIC_COLUMNS if c not in atomic_df.columns]
         lines.append(f"Missing atomic-step columns: {missing_atomic_cols if missing_atomic_cols else 'none'}")
         ok = ok and not missing_atomic_cols
         expected = EXPECTED_COUNTS.get(profile)
@@ -262,7 +290,8 @@ def audit(log_dir: Path, table_dir: Path, profile_arg: str | None = "auto") -> t
         lines.append("## Environment metadata")
         tasks = meta.get("tasks", {})
         lines.append(f"Metadata task count: {len(tasks)}")
-        ok = add_check(lines, len(tasks) >= 3, "metadata contains at least three tasks") and ok
+        min_task_count = 1 if profile == "minigrid-performance" else 3
+        ok = add_check(lines, len(tasks) >= min_task_count, f"metadata contains at least {min_task_count} task(s)") and ok
         for task, item in tasks.items():
             missing = [k for k in REQUIRED_META if k not in item or item[k] in (None, "")]
             lines.append(f"Metadata missing for {task}: {missing if missing else 'none'}")
@@ -308,7 +337,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--log-dir", default="experiments/tog2026_full_validation/logs/full_validation")
     parser.add_argument("--table-dir", default="experiments/tog2026_full_validation/paper/revised/tables")
-    parser.add_argument("--profile", default="auto", choices=["auto", "full", "external", "timing"])
+    parser.add_argument("--profile", default="auto", choices=["auto", "full", "external", "timing", "compute-matched", "minigrid-performance"])
     parser.add_argument("--out", default="PACKAGE_AUDIT_REPORT.md")
     args = parser.parse_args()
 

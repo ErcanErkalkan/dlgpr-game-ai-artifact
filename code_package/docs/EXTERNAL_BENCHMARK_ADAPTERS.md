@@ -27,7 +27,7 @@ The `EnvMetadata` object must define the environment name/version, observation a
 
 ## Provided code
 
-`dlgpr.external_adapters.GymnasiumDiscreteAdapter` provides a wrapper for discrete-action Gymnasium-style environments. It supports discrete observations, vector observations, and numeric dictionary observations such as MiniGrid image/direction dictionaries.
+`dlgpr.external_adapters.GymnasiumDiscreteAdapter` provides a wrapper for discrete-action Gymnasium-style environments. It supports discrete observations, vector observations, numeric dictionary observations such as MiniGrid image/direction dictionaries, optional disclosed feature formatters, and optional action maps.
 
 The release includes completed logs for these default external tasks:
 
@@ -39,8 +39,9 @@ The release includes completed logs for these default external tasks:
 The release also includes an optional MiniGrid adapter:
 
 - `minigrid-empty-5x5`
+- `minigrid-empty-5x5-fullyobs`
 
-MiniGrid is included in the raw-CPU timing profile, but not in the default external performance run. The simple linear policy is not a strong MiniGrid controller, so MiniGrid results must be treated as adapter and timing diagnostics unless a stronger policy class is added.
+The partial-observation adapter remains in the raw-CPU timing profile. The separate MiniGrid performance experiment uses `minigrid-empty-5x5-fullyobs`, MiniGrid's `FullyObsWrapper`, normalized agent/goal/relative-goal features, a direction one-hot vector, and the task-relevant `left/right/forward` action subset. Its logs are stored under `experiments/ec2026_minigrid_performance`. Treat this as bounded `Empty-5x5` benchmark integration, not as broad MiniGrid-suite superiority evidence.
 
 ## Manuscript rule
 

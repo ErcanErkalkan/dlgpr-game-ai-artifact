@@ -46,6 +46,22 @@ python code_package/scripts/analyze_results.py --log-dir experiments/tog2026_tim
 python code_package/scripts/audit_package.py --profile timing --log-dir experiments/tog2026_timing_profile/logs/timing_profile --table-dir experiments/tog2026_timing_profile/paper/revised/tables --out experiments/tog2026_timing_profile/PACKAGE_AUDIT_REPORT.md
 ```
 
+## Rollout-equivalent compute-matched local validation
+
+```bash
+python code_package/scripts/run_compute_matched_validation.py --full --basis rollout
+python code_package/scripts/analyze_results.py --log-dir experiments/ec2026_compute_matched_rollout/logs/compute_matched_rollout --table-dir experiments/ec2026_compute_matched_rollout/paper/revised/tables --fig-dir experiments/ec2026_compute_matched_rollout/paper/revised/figures
+python code_package/scripts/audit_package.py --profile compute-matched --log-dir experiments/ec2026_compute_matched_rollout/logs/compute_matched_rollout --table-dir experiments/ec2026_compute_matched_rollout/paper/revised/tables --out experiments/ec2026_compute_matched_rollout/PACKAGE_AUDIT_REPORT.md
+```
+
+## MiniGrid Empty-5x5 performance validation
+
+```bash
+python code_package/scripts/run_minigrid_performance.py --full
+python code_package/scripts/analyze_results.py --log-dir experiments/ec2026_minigrid_performance/logs/minigrid_performance --table-dir experiments/ec2026_minigrid_performance/paper/revised/tables --fig-dir experiments/ec2026_minigrid_performance/paper/revised/figures
+python code_package/scripts/audit_package.py --profile minigrid-performance --log-dir experiments/ec2026_minigrid_performance/logs/minigrid_performance --table-dir experiments/ec2026_minigrid_performance/paper/revised/tables --out experiments/ec2026_minigrid_performance/PACKAGE_AUDIT_REPORT.md
+```
+
 ## Sensitivity run
 
 ```bash
@@ -68,6 +84,8 @@ For manuscript-consistent completed release outputs:
 - `experiments/tog2026_full_validation/`
 - `experiments/tog2026_external_gymnasium/`
 - `experiments/tog2026_timing_profile/`
+- `experiments/ec2026_compute_matched_rollout/`
+- `experiments/ec2026_minigrid_performance/`
 
 ## Determinism
 

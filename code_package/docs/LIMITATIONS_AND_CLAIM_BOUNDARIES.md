@@ -15,12 +15,15 @@ This package is designed to close reviewer-identified reproducibility and metada
 - Strict and relaxed do-not-start rules are separable and auditable.
 - Cross-layer handoff is implemented and can be ablated.
 - Baseline and ablation outputs are generated in manuscript-ready CSV form.
+- Robust-versus-standard methods can be compared under a rollout-equivalent online compute account that charges evaluation, RL-training, and RL-to-population injection rollouts.
+- The MiniGrid `Empty-5x5` fully observable adapter experiment demonstrates bounded recognized-benchmark integration.
 
 ## Claims not supported without additional external experiments
 
 - Superiority on GVGAI, MicroRTS, Procgen, or commercial game engines.
 - Real engine wall-clock latency unless an engine-integrated timing mode is used.
 - Broad generalization across opponents, procedural seeds, or genres.
+- Broad MiniGrid-suite superiority from the single fully observable `Empty-5x5` experiment.
 - Production real-time guarantees beyond the declared charged-time contract.
 
 
