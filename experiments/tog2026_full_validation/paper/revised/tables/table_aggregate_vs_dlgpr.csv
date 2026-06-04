@@ -1,16 +1,16 @@
-comparator,paired_mean_return_delta_vs_DLGPR,paired_median_return_delta_vs_DLGPR,paired_wins_up,paired_losses_down,paired_ties,tasks_with_positive_mean_delta_up,tasks_with_negative_mean_delta_down,tasks_with_zero_mean_delta,n_pairs,interpretation
-GA-only,-0.15922153333333328,-0.00399999999999999,10,15,5,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-PSO-only,-0.24916798666666662,-0.11427020000000021,5,19,6,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-RL-only,-0.5090341333333334,-0.45500000000000007,2,27,1,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-fixed-split,-0.06801659999999998,0.0,8,14,8,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-greedy-improvement,-0.11575671999999997,0.0,11,14,5,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-no-diversity,-0.1111056133333333,0.0,8,14,8,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-no-handshake,0.004073480000000007,0.0,11,11,8,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-no-learning-progress,-0.0697574533333333,0.0,7,10,13,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-no-non-starvation,-0.0657899466666666,0.0010000000000000009,15,10,5,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-no-ucb,-0.08815893333333333,0.0,5,12,13,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-relaxed-delta-min,-0.02947456,0.0,9,9,12,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-robust-DLGPR,0.10722569333333336,0.023999999999999994,19,6,5,2,1,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-robust-near-elite-DLGPR,0.1351236266666667,0.017999999999999988,20,5,5,2,1,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-round-robin,-0.06801659999999998,0.0,8,14,8,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
-strict-delta-max,0.0,0.0,0,0,30,0,0,3,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+comparator,paired_mean_return_delta_vs_DLGPR,paired_median_return_delta_vs_DLGPR,paired_wins_up,paired_losses_down,paired_ties,effect_size_paired_rank_biserial_comparator_minus_DLGPR,effect_size_paired_cohens_dz_comparator_minus_DLGPR,tasks_with_positive_mean_delta_up,tasks_with_negative_mean_delta_down,tasks_with_zero_mean_delta,n_pairs,interpretation
+GA-only,-0.15922153333333325,-0.00399999999999999,10,15,5,-0.4676923076923077,-0.5006946004135827,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+PSO-only,-0.24916798666666662,-0.11427020000000021,5,19,6,-0.6733333333333333,-0.6060656511736948,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+RL-only,-0.5090341333333334,-0.45500000000000007,2,27,1,-0.903448275862069,-1.013770959256693,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+fixed-split,-0.06801659999999998,0.0,8,14,8,-0.39920948616600793,-0.29934618523498174,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+greedy-improvement,-0.11575671999999998,0.0,11,14,5,-0.37846153846153846,-0.3559444437293898,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+no-diversity,-0.11110561333333328,0.0,8,14,8,-0.35177865612648224,-0.3389209238111668,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+no-handshake,0.004073480000000007,0.0,11,11,8,-0.007905138339920948,0.01917186506626557,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+no-learning-progress,-0.06975745333333329,0.0,7,10,13,-0.35947712418300654,-0.32631054006361143,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+no-non-starvation,-0.06578994666666658,0.0010000000000000009,15,10,5,-0.003076923076923077,-0.21223089231027928,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+no-ucb,-0.08815893333333333,0.0,5,12,13,-0.6209150326797386,-0.4223803945964766,0,3,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+relaxed-delta-min,-0.02947456,0.0,9,9,12,-0.07602339181286549,-0.21687719321874513,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+robust-DLGPR,0.10722569333333336,0.023999999999999994,19,6,5,0.5015384615384615,0.34520726323889994,2,1,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+robust-near-elite-DLGPR,0.1351236266666667,0.017999999999999988,20,5,5,0.6,0.4044971035907598,2,1,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+round-robin,-0.06801659999999998,0.0,8,14,8,-0.39920948616600793,-0.29934618523498174,1,2,0,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.
+strict-delta-max,0.0,0.0,0,0,30,0.0,0.0,0,0,3,30,Aggregate diagnostic; confirm per-task tables and Holm-adjusted paired tests before claiming superiority.

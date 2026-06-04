@@ -48,7 +48,7 @@ Atomic modules observed: ['GA', 'PSO', 'RL']
 
 ## Environment metadata
 Metadata task count: 4
-- [OK] metadata contains at least three tasks
+- [OK] metadata contains at least 3 task(s)
 Metadata missing for gym-frozenlake-4x4: none
 Metadata missing for gym-frozenlake-4x4-deterministic: none
 Metadata missing for gym-cliffwalking: none
@@ -70,6 +70,8 @@ Table directory: `experiments/tog2026_external_gymnasium/paper/revised/tables`
 - [OK] experiments/tog2026_external_gymnasium/paper/revised/tables/table_environment_metadata.csv
   Missing table columns: none
 - [OK] experiments/tog2026_external_gymnasium/paper/revised/tables/table_metric_definitions.csv
+  Missing table columns: none
+- [OK] experiments/tog2026_external_gymnasium/paper/revised/tables/table_compute_accounting.csv
   Missing table columns: none
 
 Overall status: PASS

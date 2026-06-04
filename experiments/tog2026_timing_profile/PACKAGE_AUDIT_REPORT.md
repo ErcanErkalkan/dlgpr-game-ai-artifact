@@ -49,7 +49,7 @@ Atomic modules observed: ['GA', 'PSO', 'RL']
 
 ## Environment metadata
 Metadata task count: 5
-- [OK] metadata contains at least three tasks
+- [OK] metadata contains at least 3 task(s)
 Metadata missing for line-duel: none
 Metadata missing for resource-defense: none
 Metadata missing for gym-frozenlake-4x4: none
@@ -72,6 +72,8 @@ Table directory: `experiments/tog2026_timing_profile/paper/revised/tables`
 - [OK] experiments/tog2026_timing_profile/paper/revised/tables/table_environment_metadata.csv
   Missing table columns: none
 - [OK] experiments/tog2026_timing_profile/paper/revised/tables/table_metric_definitions.csv
+  Missing table columns: none
+- [OK] experiments/tog2026_timing_profile/paper/revised/tables/table_compute_accounting.csv
   Missing table columns: none
 
 Overall status: PASS

@@ -1,6 +1,6 @@
 task_name,variant,return_mean_up,return_std,return_median_up,return_ci95,delta_return_vs_full,win_rate_up,p99_latency_ms_down,interpretation
 gym-cliffwalking,DLGPR-full,-4.0,0.0,-4.0,0.0,0.0,0.0,77.04593699563704,full model reference
 gym-frozenlake-4x4,DLGPR-full,0.0,0.0,0.0,0.0,0.0,0.0,67.0763940087636,full model reference
-line-duel,DLGPR-full,0.3540000000000001,0.6126010120788243,-0.0799999999999999,0.5369684623886211,0.0,0.4,63.610317996135564,full model reference
+line-duel,DLGPR-full,0.3540000000000001,0.6126010120788243,-0.0799999999999999,0.7606446219614654,0.0,0.4,63.610317996135564,full model reference
 minigrid-empty-5x5,DLGPR-full,0.0,0.0,0.0,0.0,0.0,0.0,65.79502499771479,full model reference
-resource-defense,DLGPR-full,0.1509932,0.0033465324143058745,0.1526,0.002933364995179414,0.0,0.0,64.15013499390625,full model reference
+resource-defense,DLGPR-full,0.1509932,0.0033465324143058745,0.1526,0.0041552688176655275,0.0,0.0,64.15013499390625,full model reference

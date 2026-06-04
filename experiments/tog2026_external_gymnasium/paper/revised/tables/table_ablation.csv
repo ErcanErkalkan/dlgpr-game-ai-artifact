@@ -1,13 +1,13 @@
 task_name,variant,return_mean_up,return_std,return_median_up,return_ci95,delta_return_vs_full,win_rate_up,p99_latency_ms_down,interpretation
-gym-blackjack,DLGPR-full,-0.12,0.39101008796307146,-0.1,0.24235056334895436,0.0,0.38,23.81925782650246,full model reference
-gym-blackjack,no-handshake,0.0,0.24944382578492943,0.0,0.15460688499833664,0.12,0.44000000000000006,23.48308291129307,variant mean return is higher than DLGPR-full in this local run
-gym-blackjack,no-non-starvation,-0.16,0.37475918193480523,-0.2,0.2322781474391807,-0.04000000000000001,0.36,23.570734539722597,DLGPR-full mean return is higher than this variant in this local run
+gym-blackjack,DLGPR-full,-0.12,0.39101008796307146,-0.1,0.2797117667285802,0.0,0.38,23.81925782650246,full model reference
+gym-blackjack,no-handshake,0.0,0.24944382578492943,0.0,0.17844136342699263,0.12,0.44000000000000006,23.48308291129307,variant mean return is higher than DLGPR-full in this local run
+gym-blackjack,no-non-starvation,-0.16,0.37475918193480523,-0.2,0.26808656887297966,-0.04000000000000001,0.36,23.570734539722597,DLGPR-full mean return is higher than this variant in this local run
 gym-cliffwalking,DLGPR-full,-80.0,0.0,-80.0,0.0,0.0,0.0,23.852317662562765,full model reference
 gym-cliffwalking,no-handshake,-80.0,0.0,-80.0,0.0,0.0,0.0,23.64969885666615,no observed mean-return difference from DLGPR-full in this local run
 gym-cliffwalking,no-non-starvation,-80.0,0.0,-80.0,0.0,0.0,0.0,23.532017729115182,no observed mean-return difference from DLGPR-full in this local run
-gym-frozenlake-4x4,DLGPR-full,0.38,0.2573367875415838,0.30000000000000004,0.15949899337892037,0.0,0.38,23.583424533146125,full model reference
-gym-frozenlake-4x4,no-handshake,0.36000000000000004,0.2065591117977289,0.30000000000000004,0.12802666388946743,-0.019999999999999962,0.36000000000000004,23.203192195028443,DLGPR-full mean return is higher than this variant in this local run
-gym-frozenlake-4x4,no-non-starvation,0.22000000000000003,0.06324555320336758,0.2,0.03919999999999999,-0.15999999999999998,0.22000000000000003,23.594373256100774,DLGPR-full mean return is higher than this variant in this local run
-gym-frozenlake-4x4-deterministic,DLGPR-full,0.1,0.31622776601683794,0.0,0.19599999999999998,0.0,0.1,23.67784565990207,full model reference
-gym-frozenlake-4x4-deterministic,no-handshake,0.1,0.31622776601683794,0.0,0.19599999999999998,0.0,0.1,23.256612169276888,no observed mean-return difference from DLGPR-full in this local run
+gym-frozenlake-4x4,DLGPR-full,0.38,0.2573367875415838,0.30000000000000004,0.18408764812817768,0.0,0.38,23.583424533146125,full model reference
+gym-frozenlake-4x4,no-handshake,0.36000000000000004,0.2065591117977289,0.30000000000000004,0.14776348711567197,-0.019999999999999962,0.36000000000000004,23.203192195028443,DLGPR-full mean return is higher than this variant in this local run
+gym-frozenlake-4x4,no-non-starvation,0.22000000000000003,0.06324555320336758,0.2,0.04524314325596409,-0.15999999999999998,0.22000000000000003,23.594373256100774,DLGPR-full mean return is higher than this variant in this local run
+gym-frozenlake-4x4-deterministic,DLGPR-full,0.1,0.31622776601683794,0.0,0.22621571627982048,0.0,0.1,23.67784565990207,full model reference
+gym-frozenlake-4x4-deterministic,no-handshake,0.1,0.31622776601683794,0.0,0.22621571627982048,0.0,0.1,23.256612169276888,no observed mean-return difference from DLGPR-full in this local run
 gym-frozenlake-4x4-deterministic,no-non-starvation,0.0,0.0,0.0,0.0,-0.1,0.0,23.727956693122948,DLGPR-full mean return is higher than this variant in this local run
